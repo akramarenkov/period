@@ -13,30 +13,20 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, true, negative)
 	require.Equal(t, 1, next)
 
-	negative, next, err = isNegative([]rune("-10d"))
-	require.NoError(t, err)
-	require.Equal(t, true, negative)
-	require.Equal(t, 1, next)
-
 	negative, next, err = isNegative([]rune("   -10"))
 	require.NoError(t, err)
 	require.Equal(t, true, negative)
 	require.Equal(t, 4, next)
 
-	negative, next, err = isNegative([]rune("   -10d"))
+	negative, next, err = isNegative([]rune("- 10"))
 	require.NoError(t, err)
 	require.Equal(t, true, negative)
-	require.Equal(t, 4, next)
+	require.Equal(t, 2, next)
 
-	negative, next, err = isNegative([]rune(" - 10"))
+	negative, next, err = isNegative([]rune("   -   10"))
 	require.NoError(t, err)
 	require.Equal(t, true, negative)
-	require.Equal(t, 3, next)
-
-	negative, next, err = isNegative([]rune(" - 10d"))
-	require.NoError(t, err)
-	require.Equal(t, true, negative)
-	require.Equal(t, 3, next)
+	require.Equal(t, 7, next)
 
 	negative, next, err = isNegative([]rune(""))
 	require.NoError(t, err)
@@ -54,16 +44,6 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, 0, next)
 
 	negative, next, err = isNegative([]rune("   10"))
-	require.NoError(t, err)
-	require.Equal(t, false, negative)
-	require.Equal(t, 0, next)
-
-	negative, next, err = isNegative([]rune("10d"))
-	require.NoError(t, err)
-	require.Equal(t, false, negative)
-	require.Equal(t, 0, next)
-
-	negative, next, err = isNegative([]rune("   10d"))
 	require.NoError(t, err)
 	require.Equal(t, false, negative)
 	require.Equal(t, 0, next)
@@ -94,6 +74,11 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, 0, next)
 
 	negative, next, err = isNegative([]rune("   -d"))
+	require.Error(t, err)
+	require.Equal(t, false, negative)
+	require.Equal(t, 0, next)
+
+	negative, next, err = isNegative([]rune("   -   d"))
 	require.Error(t, err)
 	require.Equal(t, false, negative)
 	require.Equal(t, 0, next)
