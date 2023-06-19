@@ -23,7 +23,6 @@ const (
 )
 
 var (
-	ErrAmbiguousUnit         = errors.New("ambiguous unit")
 	ErrInvalidExpression     = errors.New("invalid expression")
 	ErrNumberNotFound        = errors.New("named number not found")
 	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
@@ -204,9 +203,7 @@ func isNegative(input []rune) (bool, int, error) {
 	return false, 0, nil
 }
 
-func findUnit(input []rune) (Unit, bool, int, error) {
-	matches := map[Unit][]rune{}
-
+func findUnit(input []rune) (Unit, bool, int) {
 	for unit, list := range knownUnits() {
 		for _, modifier := range list {
 			if !isPossibleMatch(input, modifier) {
@@ -216,21 +213,12 @@ func findUnit(input []rune) (Unit, bool, int, error) {
 			challenger := input[:len(modifier)]
 
 			if string(challenger) == string(modifier) {
-				matches[unit] = modifier
+				return unit, true, len(modifier)
 			}
 		}
 	}
 
-	if len(matches) == 0 {
-		return "", false, 0, nil
-	}
-
-	unit, ambiguous := findMostSuitableUnit(matches)
-	if ambiguous {
-		return "", false, 0, ErrAmbiguousUnit
-	}
-
-	return unit, true, len(matches[unit]), nil
+	return "", false, 0
 }
 
 func isPossibleMatch(input []rune, modifier []rune) bool {
@@ -254,26 +242,6 @@ func isPossibleMatch(input []rune, modifier []rune) bool {
 	return false
 }
 
-func findMostSuitableUnit(matches map[Unit][]rune) (Unit, bool) {
-	maxLen := 0
-	suitable := UnitUnknown
-
-	for unit, modifier := range matches {
-		if len(modifier) < maxLen {
-			continue
-		}
-
-		if len(modifier) == maxLen {
-			return "", true
-		}
-
-		maxLen = len(modifier)
-		suitable = unit
-	}
-
-	return suitable, false
-}
-
 func findOneNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 	begin := -1
 
@@ -294,11 +262,7 @@ func findOneNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 			continue
 		}
 
-		unit, found, next, err := findUnit(input[id:])
-		if err != nil {
-			return nil, 0, false, UnitUnknown, err
-		}
-
+		unit, found, next := findUnit(input[id:])
 		if found {
 			if begin == -1 {
 				return nil, 0, false, UnitUnknown, ErrNumberNotFound
