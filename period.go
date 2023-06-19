@@ -27,7 +27,6 @@ var (
 	ErrNumberNotFound        = errors.New("named number not found")
 	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
 	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
-	ErrUnexpectedUnit        = errors.New("unexpected unit")
 )
 
 func knownUnits() map[Unit][][]rune {
@@ -155,8 +154,6 @@ func Parse(input string) (Period, bool, error) {
 			period.Duration += time.Duration(parsed) * time.Microsecond
 		case UnitNanosecond:
 			period.Duration += time.Duration(parsed) * time.Nanosecond
-		default:
-			return Period{}, false, ErrUnexpectedUnit
 		}
 	}
 
@@ -248,7 +245,7 @@ func findOneNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 	for id, symbol := range input {
 		if unicode.IsSpace(symbol) {
 			if begin != -1 {
-				return input[begin:id], id, true, UnitNanosecond, nil
+				return nil, 0, false, UnitUnknown, ErrNumberNotFound
 			}
 
 			continue
@@ -275,7 +272,7 @@ func findOneNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 	}
 
 	if begin != -1 {
-		return input[begin:], len(input), true, UnitNanosecond, nil
+		return nil, 0, false, UnitUnknown, ErrNumberNotFound
 	}
 
 	return nil, 0, false, UnitUnknown, nil

@@ -227,7 +227,17 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, true, found)
 	require.Equal(t, 11, next)
 
+	unit, found, next = findUnit([]rune("y "))
+	require.Equal(t, UnitYear, unit)
+	require.Equal(t, true, found)
+	require.Equal(t, 1, next)
+
 	unit, found, next = findUnit([]rune("yea"))
+	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, false, found)
+	require.Equal(t, 0, next)
+
+	unit, found, next = findUnit([]rune("yea "))
 	require.Equal(t, UnitUnknown, unit)
 	require.Equal(t, false, found)
 	require.Equal(t, 0, next)
@@ -276,13 +286,6 @@ func TestFindOneNamedNumber(t *testing.T) {
 	require.Equal(t, false, found)
 	require.Equal(t, UnitUnknown, unit)
 
-	number, next, found, unit, err = findOneNamedNumber([]rune(" 1 0d"))
-	require.NoError(t, err)
-	require.Equal(t, []rune("1"), number)
-	require.Equal(t, 2, next)
-	require.Equal(t, true, found)
-	require.Equal(t, UnitNanosecond, unit)
-
 	number, next, found, unit, err = findOneNamedNumber([]rune("d"))
 	require.Error(t, err)
 	require.Equal(t, []rune(nil), number)
@@ -298,6 +301,20 @@ func TestFindOneNamedNumber(t *testing.T) {
 	require.Equal(t, UnitUnknown, unit)
 
 	number, next, found, unit, err = findOneNamedNumber([]rune("-10d"))
+	require.Error(t, err)
+	require.Equal(t, []rune(nil), number)
+	require.Equal(t, 0, next)
+	require.Equal(t, false, found)
+	require.Equal(t, UnitUnknown, unit)
+
+	number, next, found, unit, err = findOneNamedNumber([]rune("10"))
+	require.Error(t, err)
+	require.Equal(t, []rune(nil), number)
+	require.Equal(t, 0, next)
+	require.Equal(t, false, found)
+	require.Equal(t, UnitUnknown, unit)
+
+	number, next, found, unit, err = findOneNamedNumber([]rune(" 1 0d"))
 	require.Error(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
@@ -321,80 +338,51 @@ func TestParse(t *testing.T) {
 	require.Equal(t, Period{Days: -10}, period)
 	require.Equal(t, true, found)
 
-	period, found, err = Parse("   -10d")
+	period, found, err = Parse("   -   10d")
 	require.NoError(t, err)
 	require.Equal(t, Period{Days: -10}, period)
 	require.Equal(t, true, found)
 
-	period, found, err = Parse("10d2y")
+	expected := Period{Years: -2, Months: -3, Days: -10, Duration: -86398010030010}
+
+	period, found, err = Parse(" - 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10, Years: 2}, period)
+	require.Equal(t, expected, period)
 	require.Equal(t, true, found)
 
-	period, found, err = Parse("   10d   2y")
+	period, found, err = Parse(" - 3mo 10d 2y 23h59m58s10ms30us10ns")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10, Years: 2}, period)
+	require.Equal(t, expected, period)
 	require.Equal(t, true, found)
 
-	period, found, err = Parse("   -  10d   2y")
+	duration, err := time.ParseDuration("-23h59m58s10ms30us10ns")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: -10, Years: -2}, period)
+	require.Equal(t, duration, expected.Duration)
+
+	period, found, err = Parse(" - 3mo 10d 2y 23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, expected, period)
 	require.Equal(t, true, found)
 
-	period, found, err = Parse("10d2y3mo")
+	duration, err = time.ParseDuration("-23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10, Years: 2, Months: 3}, period)
+	require.Equal(t, duration, expected.Duration)
+
+	expected = Period{Years: -2, Months: -3, Days: -10, Duration: -191941010030000}
+
+	period, found, err = Parse(" - 3mo 10d 2y 52h 78m 61s 10ms 30us")
+	require.NoError(t, err)
+	require.Equal(t, expected, period)
 	require.Equal(t, true, found)
 
-	period, found, err = Parse("-10d2y3mo")
+	period, found, err = Parse(" - 3mo 10d 2y 52h78m61s10ms30us")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: -10, Years: -2, Months: -3}, period)
+	require.Equal(t, expected, period)
 	require.Equal(t, true, found)
 
-	period, found, err = Parse("    10d   2y  3mo")
+	duration, err = time.ParseDuration("-52h78m61s10ms30us")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10, Years: 2, Months: 3}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse("   -  10d   2y  3mo")
-	require.NoError(t, err)
-	require.Equal(t, Period{Days: -10, Years: -2, Months: -3}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse("-3mo2y10d")
-	require.NoError(t, err)
-	require.Equal(t, Period{Days: -10, Years: -2, Months: -3}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse("- 3mo 2y 10d")
-	require.NoError(t, err)
-	require.Equal(t, Period{Days: -10, Years: -2, Months: -3}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse(" - 3mo 2y 001d")
-	require.NoError(t, err)
-	require.Equal(t, Period{Days: -1, Years: -2, Months: -3}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse("10")
-	require.NoError(t, err)
-	require.Equal(t, Period{Duration: 10 * time.Nanosecond}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse("   10")
-	require.NoError(t, err)
-	require.Equal(t, Period{Duration: 10 * time.Nanosecond}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse("10d2")
-	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10, Duration: 2 * time.Nanosecond}, period)
-	require.Equal(t, true, found)
-
-	period, found, err = Parse("   10d2")
-	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10, Duration: 2 * time.Nanosecond}, period)
-	require.Equal(t, true, found)
+	require.Equal(t, duration, expected.Duration)
 
 	period, found, err = Parse("")
 	require.NoError(t, err)
@@ -416,7 +404,17 @@ func TestParse(t *testing.T) {
 	require.Equal(t, Period{}, period)
 	require.Equal(t, false, found)
 
-	period, found, err = Parse("10d2y3mo1y")
+	period, found, err = Parse(" - 3mo 10d 2y 23h 59m 58s 10ms 30us 20µs 10ns 1")
+	require.Error(t, err)
+	require.Equal(t, Period{}, period)
+	require.Equal(t, false, found)
+
+	period, found, err = Parse(" - 3mo 10d 2y 23h 59m 58s 10ms 30us 10zs")
+	require.Error(t, err)
+	require.Equal(t, Period{}, period)
+	require.Equal(t, false, found)
+
+	period, found, err = Parse(" - ৩mo 10d 2y 23h 59m 58s 10ms 30us 10ns")
 	require.Error(t, err)
 	require.Equal(t, Period{}, period)
 	require.Equal(t, false, found)
