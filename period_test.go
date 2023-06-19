@@ -419,3 +419,22 @@ func TestParse(t *testing.T) {
 	require.Equal(t, Period{}, period)
 	require.Equal(t, false, found)
 }
+
+func TestDuration(t *testing.T) {
+	period := Period{
+		Years: 1,
+	}
+
+	date := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)
+	expectedDate := time.Date(2024, time.April, 1, 0, 0, 0, 0, time.UTC)
+	expectedDuration := date.Sub(date.AddDate(1, 0, 0))
+
+	unexpectedDuration := 365 * 24 * time.Hour
+	unexpectedDate := date.Add(unexpectedDuration)
+
+	require.Equal(t, expectedDate, period.ShiftTime(date))
+	require.NotEqual(t, unexpectedDate, period.ShiftTime(date))
+
+	require.Equal(t, expectedDuration, period.RelativeDuration(date))
+	require.NotEqual(t, unexpectedDuration, period.RelativeDuration(date))
+}
