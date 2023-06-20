@@ -115,31 +115,12 @@ func Parse(input string) (Period, bool, error) {
 	}
 
 	for unit, number := range found {
-		parsed, err := strconv.Atoi(string(number))
+		updated, err := parseNumber(period, number, unit)
 		if err != nil {
 			return Period{}, false, err
 		}
 
-		switch unit {
-		case UnitYear:
-			period.years = parsed
-		case UnitMonth:
-			period.months = parsed
-		case UnitDay:
-			period.days = parsed
-		case UnitHour:
-			period.duration += time.Duration(parsed) * time.Hour
-		case UnitMinute:
-			period.duration += time.Duration(parsed) * time.Minute
-		case UnitSecond:
-			period.duration += time.Duration(parsed) * time.Second
-		case UnitMillisecond:
-			period.duration += time.Duration(parsed) * time.Millisecond
-		case UnitMicrosecond:
-			period.duration += time.Duration(parsed) * time.Microsecond
-		case UnitNanosecond:
-			period.duration += time.Duration(parsed) * time.Nanosecond
-		}
+		period = updated
 	}
 
 	return period, true, nil
@@ -367,4 +348,34 @@ func findNamedNumbers(input []rune) (map[Unit][]rune, error) {
 	}
 
 	return retrieved, nil
+}
+
+func parseNumber(period Period, number []rune, unit Unit) (Period, error) {
+	parsed, err := strconv.Atoi(string(number))
+	if err != nil {
+		return Period{}, err
+	}
+
+	switch unit {
+	case UnitYear:
+		period.years = parsed
+	case UnitMonth:
+		period.months = parsed
+	case UnitDay:
+		period.days = parsed
+	case UnitHour:
+		period.duration += time.Duration(parsed) * time.Hour
+	case UnitMinute:
+		period.duration += time.Duration(parsed) * time.Minute
+	case UnitSecond:
+		period.duration += time.Duration(parsed) * time.Second
+	case UnitMillisecond:
+		period.duration += time.Duration(parsed) * time.Millisecond
+	case UnitMicrosecond:
+		period.duration += time.Duration(parsed) * time.Microsecond
+	case UnitNanosecond:
+		period.duration += time.Duration(parsed) * time.Nanosecond
+	}
+
+	return period, nil
 }
