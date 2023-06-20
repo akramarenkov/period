@@ -444,7 +444,7 @@ func TestDuration(t *testing.T) {
 	require.Equal(t, expectedDate, period.ShiftTime(date))
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 
-	period, found, err = Parse("1d8760h")
+	period, found, err = Parse("8760h1d")
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
