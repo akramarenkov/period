@@ -170,7 +170,7 @@ func (prd Period) ShiftTime(base time.Time) time.Time {
 }
 
 func (prd Period) RelativeDuration(base time.Time) time.Duration {
-	return base.Sub(prd.ShiftTime(base))
+	return prd.ShiftTime(base).Sub(base)
 }
 
 func (prd Period) String() string {

@@ -500,7 +500,7 @@ func TestCorretness(t *testing.T) {
 	date := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)
 
 	expectedDate := time.Date(2024, time.April, 1, 0, 0, 0, 0, time.UTC)
-	expectedDuration := date.Sub(date.AddDate(1, 0, 0))
+	expectedDuration := date.AddDate(1, 0, 0).Sub(date)
 
 	unexpectedDuration := 365 * 24 * time.Hour
 	unexpectedDate := date.Add(unexpectedDuration)
