@@ -86,159 +86,159 @@ func TestIsNegative(t *testing.T) {
 
 func TestFindUnit(t *testing.T) {
 	unit, found, next := findUnit([]rune("y"))
-	require.Equal(t, UnitYear, unit)
+	require.Equal(t, unitYear, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit([]rune("year"))
-	require.Equal(t, UnitYear, unit)
+	require.Equal(t, unitYear, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 4, next)
 
 	unit, found, next = findUnit([]rune("years"))
 
-	require.Equal(t, UnitYear, unit)
+	require.Equal(t, unitYear, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 5, next)
 
 	unit, found, next = findUnit([]rune("mo"))
-	require.Equal(t, UnitMonth, unit)
+	require.Equal(t, unitMonth, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit([]rune("month"))
-	require.Equal(t, UnitMonth, unit)
+	require.Equal(t, unitMonth, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 5, next)
 
 	unit, found, next = findUnit([]rune("months"))
-	require.Equal(t, UnitMonth, unit)
+	require.Equal(t, unitMonth, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 6, next)
 
 	unit, found, next = findUnit([]rune("d"))
-	require.Equal(t, UnitDay, unit)
+	require.Equal(t, unitDay, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit([]rune("day"))
-	require.Equal(t, UnitDay, unit)
+	require.Equal(t, unitDay, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 3, next)
 
 	unit, found, next = findUnit([]rune("days"))
-	require.Equal(t, UnitDay, unit)
+	require.Equal(t, unitDay, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 4, next)
 
 	unit, found, next = findUnit([]rune("h"))
-	require.Equal(t, UnitHour, unit)
+	require.Equal(t, unitHour, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit([]rune("hour"))
-	require.Equal(t, UnitHour, unit)
+	require.Equal(t, unitHour, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 4, next)
 
 	unit, found, next = findUnit([]rune("hours"))
-	require.Equal(t, UnitHour, unit)
+	require.Equal(t, unitHour, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 5, next)
 
 	unit, found, next = findUnit([]rune("m"))
-	require.Equal(t, UnitMinute, unit)
+	require.Equal(t, unitMinute, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit([]rune("minute"))
-	require.Equal(t, UnitMinute, unit)
+	require.Equal(t, unitMinute, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 6, next)
 
 	unit, found, next = findUnit([]rune("minutes"))
-	require.Equal(t, UnitMinute, unit)
+	require.Equal(t, unitMinute, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 7, next)
 
 	unit, found, next = findUnit([]rune("s"))
 
-	require.Equal(t, UnitSecond, unit)
+	require.Equal(t, unitSecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit([]rune("second"))
-	require.Equal(t, UnitSecond, unit)
+	require.Equal(t, unitSecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 6, next)
 
 	unit, found, next = findUnit([]rune("seconds"))
-	require.Equal(t, UnitSecond, unit)
+	require.Equal(t, unitSecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 7, next)
 
 	unit, found, next = findUnit([]rune("ms"))
-	require.Equal(t, UnitMillisecond, unit)
+	require.Equal(t, unitMillisecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit([]rune("millisecond"))
-	require.Equal(t, UnitMillisecond, unit)
+	require.Equal(t, unitMillisecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 11, next)
 
 	unit, found, next = findUnit([]rune("milliseconds"))
-	require.Equal(t, UnitMillisecond, unit)
+	require.Equal(t, unitMillisecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 12, next)
 
 	unit, found, next = findUnit([]rune("us"))
-	require.Equal(t, UnitMicrosecond, unit)
+	require.Equal(t, unitMicrosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit([]rune("µs"))
-	require.Equal(t, UnitMicrosecond, unit)
+	require.Equal(t, unitMicrosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit([]rune("microsecond"))
-	require.Equal(t, UnitMicrosecond, unit)
+	require.Equal(t, unitMicrosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 11, next)
 
 	unit, found, next = findUnit([]rune("microseconds"))
-	require.Equal(t, UnitMicrosecond, unit)
+	require.Equal(t, unitMicrosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 12, next)
 
 	unit, found, next = findUnit([]rune("ns"))
-	require.Equal(t, UnitNanosecond, unit)
+	require.Equal(t, unitNanosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit([]rune("nanosecond"))
-	require.Equal(t, UnitNanosecond, unit)
+	require.Equal(t, unitNanosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 10, next)
 
 	unit, found, next = findUnit([]rune("nanoseconds"))
-	require.Equal(t, UnitNanosecond, unit)
+	require.Equal(t, unitNanosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 11, next)
 
 	unit, found, next = findUnit([]rune("y "))
-	require.Equal(t, UnitYear, unit)
+	require.Equal(t, unitYear, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit([]rune("yea"))
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 	require.Equal(t, false, found)
 	require.Equal(t, 0, next)
 
 	unit, found, next = findUnit([]rune("yea "))
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 	require.Equal(t, false, found)
 	require.Equal(t, 0, next)
 }
@@ -249,106 +249,108 @@ func TestFindNamedNumber(t *testing.T) {
 	require.Equal(t, []rune("10"), number)
 	require.Equal(t, 3, next)
 	require.Equal(t, true, found)
-	require.Equal(t, UnitDay, unit)
+	require.Equal(t, unitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("   10d"))
 	require.NoError(t, err)
 	require.Equal(t, []rune("10"), number)
 	require.Equal(t, 6, next)
 	require.Equal(t, true, found)
-	require.Equal(t, UnitDay, unit)
+	require.Equal(t, unitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("10d2m"))
 	require.NoError(t, err)
 	require.Equal(t, []rune("10"), number)
 	require.Equal(t, 3, next)
 	require.Equal(t, true, found)
-	require.Equal(t, UnitDay, unit)
+	require.Equal(t, unitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("   10d2m"))
 	require.NoError(t, err)
 	require.Equal(t, []rune("10"), number)
 	require.Equal(t, 6, next)
 	require.Equal(t, true, found)
-	require.Equal(t, UnitDay, unit)
+	require.Equal(t, unitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune(""))
 	require.NoError(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("  "))
 	require.NoError(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("d"))
 	require.Error(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("  d"))
 	require.Error(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("-10d"))
 	require.Error(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune("10"))
 	require.Error(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber([]rune(" 1 0d"))
 	require.Error(t, err)
 	require.Equal(t, []rune(nil), number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
-	require.Equal(t, UnitUnknown, unit)
+	require.Equal(t, unitUnknown, unit)
 }
 
 func TestParse(t *testing.T) {
 	period, found, err := Parse("10d")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10}, period)
+	require.Equal(t, Period{days: 10}, period)
 	require.Equal(t, true, found)
 
 	period, found, err = Parse("   10d")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: 10}, period)
+	require.Equal(t, Period{days: 10}, period)
 	require.Equal(t, true, found)
 
 	period, found, err = Parse("-10d")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: -10}, period)
+	require.Equal(t, Period{negative: true, days: 10}, period)
 	require.Equal(t, true, found)
 
 	period, found, err = Parse("   -   10d")
 	require.NoError(t, err)
-	require.Equal(t, Period{Days: -10}, period)
+	require.Equal(t, Period{negative: true, days: 10}, period)
 	require.Equal(t, true, found)
 
 	expected := Period{
-		Years:  -2,
-		Months: -3,
-		Days:   -10,
+		negative: true,
 
-		Duration: -86398010030010,
+		years:  2,
+		months: 3,
+		days:   10,
+
+		duration: 86398010030010,
 	}
 
 	period, found, err = Parse(" - 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns")
@@ -363,7 +365,7 @@ func TestParse(t *testing.T) {
 
 	duration, err := time.ParseDuration("-23h59m58s10ms30us10ns")
 	require.NoError(t, err)
-	require.Equal(t, duration, period.Duration)
+	require.Equal(t, duration, -period.duration)
 
 	period, found, err = Parse(" - 3mo 10d 2y 23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
@@ -372,14 +374,16 @@ func TestParse(t *testing.T) {
 
 	duration, err = time.ParseDuration("-23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, duration, period.Duration)
+	require.Equal(t, duration, -period.duration)
 
 	expected = Period{
-		Years:  -2,
-		Months: -3,
-		Days:   -10,
+		negative: true,
 
-		Duration: -191941010030000,
+		years:  2,
+		months: 3,
+		days:   10,
+
+		duration: 191941010030000,
 	}
 
 	period, found, err = Parse(" - 3mo 10d 2y 52h 78m 61s 10ms 30us")
@@ -394,7 +398,7 @@ func TestParse(t *testing.T) {
 
 	duration, err = time.ParseDuration("-52h78m61s10ms30us")
 	require.NoError(t, err)
-	require.Equal(t, duration, period.Duration)
+	require.Equal(t, duration, -period.duration)
 
 	period, found, err = Parse("")
 	require.NoError(t, err)
@@ -434,7 +438,7 @@ func TestParse(t *testing.T) {
 
 func TestCorretness(t *testing.T) {
 	period := Period{
-		Years: 1,
+		years: 1,
 	}
 
 	date := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)
@@ -462,4 +466,14 @@ func TestCorretness(t *testing.T) {
 	require.Equal(t, true, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
+}
+
+func TestString(t *testing.T) {
+	source := "-2y3mo10d23h59m58s10ms30us10ns"
+
+	period, found, err := Parse(source)
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Equal(t, source, period.String())
 }

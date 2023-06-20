@@ -3,23 +3,24 @@ package period
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 	"unicode"
 )
 
-type Unit string
+type unit int
 
 const (
-	UnitUnknown     Unit = ""
-	UnitYear        Unit = "year"
-	UnitMonth       Unit = "month"
-	UnitDay         Unit = "day"
-	UnitHour        Unit = "hour"
-	UnitMinute      Unit = "minute"
-	UnitSecond      Unit = "second"
-	UnitMillisecond Unit = "millisecond"
-	UnitMicrosecond Unit = "microsecond"
-	UnitNanosecond  Unit = "nanosecond"
+	unitUnknown unit = iota
+	unitYear
+	unitMonth
+	unitDay
+	unitHour
+	unitMinute
+	unitSecond
+	unitMillisecond
+	unitMicrosecond
+	unitNanosecond
 )
 
 var (
@@ -29,53 +30,53 @@ var (
 	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
 )
 
-func knownUnits() map[Unit][][]rune {
-	units := map[Unit][][]rune{
-		UnitYear: {
+func knownUnits() map[unit][][]rune {
+	units := map[unit][][]rune{
+		unitYear: {
 			[]rune("y"),
-			[]rune(UnitYear),
-			[]rune(UnitYear + "s"),
+			[]rune("year"),
+			[]rune("years"),
 		},
-		UnitMonth: {
+		unitMonth: {
 			[]rune("mo"),
-			[]rune(UnitMonth),
-			[]rune(UnitMonth + "s"),
+			[]rune("month"),
+			[]rune("months"),
 		},
-		UnitDay: {
+		unitDay: {
 			[]rune("d"),
-			[]rune(UnitDay),
-			[]rune(UnitDay + "s"),
+			[]rune("day"),
+			[]rune("days"),
 		},
-		UnitHour: {
+		unitHour: {
 			[]rune("h"),
-			[]rune(UnitHour),
-			[]rune(UnitHour + "s"),
+			[]rune("hour"),
+			[]rune("hours"),
 		},
-		UnitMinute: {
+		unitMinute: {
 			[]rune("m"),
-			[]rune(UnitMinute),
-			[]rune(UnitMinute + "s"),
+			[]rune("minute"),
+			[]rune("minutes"),
 		},
-		UnitSecond: {
+		unitSecond: {
 			[]rune("s"),
-			[]rune(UnitSecond),
-			[]rune(UnitSecond + "s"),
+			[]rune("second"),
+			[]rune("seconds"),
 		},
-		UnitMillisecond: {
+		unitMillisecond: {
 			[]rune("ms"),
-			[]rune(UnitMillisecond),
-			[]rune(UnitMillisecond + "s"),
+			[]rune("millisecond"),
+			[]rune("milliseconds"),
 		},
-		UnitMicrosecond: {
+		unitMicrosecond: {
 			[]rune("us"),
 			[]rune("µs"),
-			[]rune(UnitMicrosecond),
-			[]rune(UnitMicrosecond + "s"),
+			[]rune("microsecond"),
+			[]rune("microseconds"),
 		},
-		UnitNanosecond: {
+		unitNanosecond: {
 			[]rune("ns"),
-			[]rune(UnitNanosecond),
-			[]rune(UnitNanosecond + "s"),
+			[]rune("nanosecond"),
+			[]rune("nanoseconds"),
 		},
 	}
 
@@ -83,17 +84,19 @@ func knownUnits() map[Unit][][]rune {
 }
 
 type Period struct {
-	Years  int
-	Months int
-	Days   int
+	negative bool
 
-	Duration time.Duration
+	years  int
+	months int
+	days   int
+
+	duration time.Duration
 }
 
 func Parse(input string) (Period, bool, error) {
 	runes := []rune(input)
 
-	retrieved := map[Unit][]rune{}
+	retrieved := map[unit][]rune{}
 
 	negative, shift, err := isNegative(runes)
 	if err != nil {
@@ -123,7 +126,9 @@ func Parse(input string) (Period, bool, error) {
 		return Period{}, false, nil
 	}
 
-	period := Period{}
+	period := Period{
+		negative: negative,
+	}
 
 	for unit, number := range retrieved {
 		parsed, err := strconv.Atoi(string(number))
@@ -131,29 +136,25 @@ func Parse(input string) (Period, bool, error) {
 			return Period{}, false, err
 		}
 
-		if negative {
-			parsed = -parsed
-		}
-
 		switch unit {
-		case UnitYear:
-			period.Years = parsed
-		case UnitMonth:
-			period.Months = parsed
-		case UnitDay:
-			period.Days = parsed
-		case UnitHour:
-			period.Duration += time.Duration(parsed) * time.Hour
-		case UnitMinute:
-			period.Duration += time.Duration(parsed) * time.Minute
-		case UnitSecond:
-			period.Duration += time.Duration(parsed) * time.Second
-		case UnitMillisecond:
-			period.Duration += time.Duration(parsed) * time.Millisecond
-		case UnitMicrosecond:
-			period.Duration += time.Duration(parsed) * time.Microsecond
-		case UnitNanosecond:
-			period.Duration += time.Duration(parsed) * time.Nanosecond
+		case unitYear:
+			period.years = parsed
+		case unitMonth:
+			period.months = parsed
+		case unitDay:
+			period.days = parsed
+		case unitHour:
+			period.duration += time.Duration(parsed) * time.Hour
+		case unitMinute:
+			period.duration += time.Duration(parsed) * time.Minute
+		case unitSecond:
+			period.duration += time.Duration(parsed) * time.Second
+		case unitMillisecond:
+			period.duration += time.Duration(parsed) * time.Millisecond
+		case unitMicrosecond:
+			period.duration += time.Duration(parsed) * time.Microsecond
+		case unitNanosecond:
+			period.duration += time.Duration(parsed) * time.Nanosecond
 		}
 	}
 
@@ -161,12 +162,80 @@ func Parse(input string) (Period, bool, error) {
 }
 
 func (prd Period) ShiftTime(base time.Time) time.Time {
-	return base.AddDate(prd.Years, prd.Months, prd.Days).Add(prd.Duration)
+	if prd.negative {
+		return base.AddDate(-prd.years, -prd.months, -prd.days).Add(-prd.duration)
+	}
+
+	return base.AddDate(prd.years, prd.months, prd.days).Add(prd.duration)
 }
 
 func (prd Period) RelativeDuration(base time.Time) time.Duration {
-	updated := base.AddDate(prd.Years, prd.Months, prd.Days).Add(prd.Duration)
-	return base.Sub(updated)
+	return base.Sub(prd.ShiftTime(base))
+}
+
+func (prd Period) String() string {
+	builder := strings.Builder{}
+
+	units := knownUnits()
+
+	if prd.negative {
+		builder.WriteString("-")
+	}
+
+	if prd.years != 0 {
+		builder.WriteString(strconv.Itoa(prd.years) + string(units[unitYear][0]))
+	}
+
+	if prd.months != 0 {
+		builder.WriteString(strconv.Itoa(prd.months) + string(units[unitMonth][0]))
+	}
+
+	if prd.days != 0 {
+		builder.WriteString(strconv.Itoa(prd.days) + string(units[unitDay][0]))
+	}
+
+	hours := prd.duration / time.Hour
+	prd.duration -= hours * time.Hour
+
+	minutes := prd.duration / time.Minute
+	prd.duration -= minutes * time.Minute
+
+	seconds := prd.duration / time.Second
+	prd.duration -= seconds * time.Second
+
+	milliseconds := prd.duration / time.Millisecond
+	prd.duration -= milliseconds * time.Millisecond
+
+	microseconds := prd.duration / time.Microsecond
+	prd.duration -= microseconds * time.Microsecond
+
+	nanoseconds := prd.duration
+
+	if hours != 0 {
+		builder.WriteString(strconv.Itoa(int(hours)) + string(units[unitHour][0]))
+	}
+
+	if minutes != 0 {
+		builder.WriteString(strconv.Itoa(int(minutes)) + string(units[unitMinute][0]))
+	}
+
+	if seconds != 0 {
+		builder.WriteString(strconv.Itoa(int(seconds)) + string(units[unitSecond][0]))
+	}
+
+	if milliseconds != 0 {
+		builder.WriteString(strconv.Itoa(int(milliseconds)) + string(units[unitMillisecond][0]))
+	}
+
+	if microseconds != 0 {
+		builder.WriteString(strconv.Itoa(int(microseconds)) + string(units[unitMicrosecond][0]))
+	}
+
+	if nanoseconds != 0 {
+		builder.WriteString(strconv.Itoa(int(nanoseconds)) + string(units[unitNanosecond][0]))
+	}
+
+	return builder.String()
 }
 
 func isNegative(input []rune) (bool, int, error) {
@@ -200,7 +269,7 @@ func isNegative(input []rune) (bool, int, error) {
 	return false, 0, nil
 }
 
-func findUnit(input []rune) (Unit, bool, int) {
+func findUnit(input []rune) (unit, bool, int) {
 	for unit, list := range knownUnits() {
 		for _, modifier := range list {
 			if !isModifierPossibleMatch(input, modifier) {
@@ -215,7 +284,7 @@ func findUnit(input []rune) (Unit, bool, int) {
 		}
 	}
 
-	return "", false, 0
+	return unitUnknown, false, 0
 }
 
 func isModifierPossibleMatch(input []rune, modifier []rune) bool {
@@ -239,13 +308,13 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 	return false
 }
 
-func findNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
+func findNamedNumber(input []rune) ([]rune, int, bool, unit, error) {
 	begin := -1
 
 	for id, symbol := range input {
 		if unicode.IsSpace(symbol) {
 			if begin != -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+				return nil, 0, false, unitUnknown, ErrIncompleteNumber
 			}
 
 			continue
@@ -262,18 +331,18 @@ func findNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 		unit, found, next := findUnit(input[id:])
 		if found {
 			if begin == -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+				return nil, 0, false, unitUnknown, ErrIncompleteNumber
 			}
 
 			return input[begin:id], id + next, true, unit, nil
 		}
 
-		return nil, 0, false, UnitUnknown, ErrUnexpectedSymbol
+		return nil, 0, false, unitUnknown, ErrUnexpectedSymbol
 	}
 
 	if begin != -1 {
-		return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+		return nil, 0, false, unitUnknown, ErrIncompleteNumber
 	}
 
-	return nil, 0, false, UnitUnknown, nil
+	return nil, 0, false, unitUnknown, nil
 }
