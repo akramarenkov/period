@@ -357,13 +357,13 @@ func findNamedNumbers(input []rune) (map[Unit][]rune, error) {
 			return nil, nil
 		}
 
-		shift += next
-
 		if _, exists := retrieved[unit]; exists {
 			return nil, ErrNumberUnitIsNotUnique
 		}
 
 		retrieved[unit] = number
+
+		shift += next
 	}
 
 	return retrieved, nil

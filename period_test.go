@@ -524,6 +524,39 @@ func TestCorretness(t *testing.T) {
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 }
 
+func TestCorretnessNegative(t *testing.T) {
+	period := Period{
+		negative: true,
+		years:    1,
+	}
+
+	date := time.Date(2024, time.April, 1, 0, 0, 0, 0, time.UTC)
+
+	expectedDate := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)
+	expectedDuration := date.AddDate(-1, 0, 0).Sub(date)
+
+	unexpectedDuration := -365 * 24 * time.Hour
+	unexpectedDate := date.Add(unexpectedDuration)
+
+	require.Equal(t, expectedDate, period.ShiftTime(date))
+	require.NotEqual(t, unexpectedDate, period.ShiftTime(date))
+
+	require.Equal(t, expectedDuration, period.RelativeDuration(date))
+	require.NotEqual(t, unexpectedDuration, period.RelativeDuration(date))
+
+	period, found, err := Parse("-365d24h")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, expectedDate, period.ShiftTime(date))
+	require.Equal(t, expectedDuration, period.RelativeDuration(date))
+
+	period, found, err = Parse("-8760h1d")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, expectedDate, period.ShiftTime(date))
+	require.Equal(t, expectedDuration, period.RelativeDuration(date))
+}
+
 func TestString(t *testing.T) {
 	source := "-2y3mo10d23h59m58s10ms30us10ns"
 
