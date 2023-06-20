@@ -96,33 +96,17 @@ type Period struct {
 func Parse(input string) (Period, bool, error) {
 	runes := []rune(input)
 
-	retrieved := map[unit][]rune{}
-
 	negative, shift, err := isNegative(runes)
 	if err != nil {
 		return Period{}, false, err
 	}
 
-	for shift != len(runes) {
-		number, next, found, unit, err := findNamedNumber(runes[shift:])
-		if err != nil {
-			return Period{}, false, err
-		}
-
-		if !found {
-			return Period{}, false, nil
-		}
-
-		shift += next
-
-		if _, exists := retrieved[unit]; exists {
-			return Period{}, false, ErrNumberUnitIsNotUnique
-		}
-
-		retrieved[unit] = number
+	found, err := findNamedNumbers(runes[shift:])
+	if err != nil {
+		return Period{}, false, err
 	}
 
-	if len(retrieved) == 0 {
+	if len(found) == 0 {
 		return Period{}, false, nil
 	}
 
@@ -130,7 +114,7 @@ func Parse(input string) (Period, bool, error) {
 		negative: negative,
 	}
 
-	for unit, number := range retrieved {
+	for unit, number := range found {
 		parsed, err := strconv.Atoi(string(number))
 		if err != nil {
 			return Period{}, false, err
@@ -356,4 +340,31 @@ func findNamedNumber(input []rune) ([]rune, int, bool, unit, error) {
 	}
 
 	return nil, 0, false, unitUnknown, nil
+}
+
+func findNamedNumbers(input []rune) (map[unit][]rune, error) {
+	retrieved := map[unit][]rune{}
+
+	shift := 0
+
+	for shift != len(input) {
+		number, next, found, unit, err := findNamedNumber(input[shift:])
+		if err != nil {
+			return nil, err
+		}
+
+		if !found {
+			return nil, nil
+		}
+
+		shift += next
+
+		if _, exists := retrieved[unit]; exists {
+			return nil, ErrNumberUnitIsNotUnique
+		}
+
+		retrieved[unit] = number
+	}
+
+	return retrieved, nil
 }
