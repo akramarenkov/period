@@ -591,6 +591,7 @@ func TestDurationImitation(t *testing.T) {
 
 	duration, err := time.ParseDuration(source)
 	require.NoError(t, err)
+
 	if period.negative {
 		require.Equal(t, duration, -period.duration)
 	} else {

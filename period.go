@@ -186,6 +186,7 @@ func (prd Period) String2() string {
 	if prd.days != 0 {
 		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
 	}
+
 	hours := prd.duration / time.Hour
 	prd.duration -= hours * time.Hour
 
