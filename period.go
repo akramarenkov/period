@@ -310,6 +310,7 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 
 func findNamedNumber(input []rune) ([]rune, int, bool, unit, error) {
 	begin := -1
+	doted := false
 
 	for id, symbol := range input {
 		if unicode.IsSpace(symbol) {
@@ -324,6 +325,16 @@ func findNamedNumber(input []rune) ([]rune, int, bool, unit, error) {
 			if begin == -1 {
 				begin = id
 			}
+
+			continue
+		}
+
+		if symbol == '.' && !doted {
+			if begin == -1 {
+				begin = id
+			}
+
+			doted = true
 
 			continue
 		}
