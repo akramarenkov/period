@@ -23,8 +23,8 @@ const (
 )
 
 var (
+	ErrIncompleteNumber      = errors.New("incomplete named number")
 	ErrInvalidExpression     = errors.New("invalid expression")
-	ErrNumberNotFound        = errors.New("named number not found")
 	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
 	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
 )
@@ -101,7 +101,7 @@ func Parse(input string) (Period, bool, error) {
 	}
 
 	for shift != len(runes) {
-		number, next, found, unit, err := findOneNamedNumber(runes[shift:])
+		number, next, found, unit, err := findNamedNumber(runes[shift:])
 		if err != nil {
 			return Period{}, false, err
 		}
@@ -203,7 +203,7 @@ func isNegative(input []rune) (bool, int, error) {
 func findUnit(input []rune) (Unit, bool, int) {
 	for unit, list := range knownUnits() {
 		for _, modifier := range list {
-			if !isPossibleMatch(input, modifier) {
+			if !isModifierPossibleMatch(input, modifier) {
 				continue
 			}
 
@@ -218,7 +218,7 @@ func findUnit(input []rune) (Unit, bool, int) {
 	return "", false, 0
 }
 
-func isPossibleMatch(input []rune, modifier []rune) bool {
+func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 	if len(input) < len(modifier) {
 		return false
 	}
@@ -239,13 +239,13 @@ func isPossibleMatch(input []rune, modifier []rune) bool {
 	return false
 }
 
-func findOneNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
+func findNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 	begin := -1
 
 	for id, symbol := range input {
 		if unicode.IsSpace(symbol) {
 			if begin != -1 {
-				return nil, 0, false, UnitUnknown, ErrNumberNotFound
+				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
 			}
 
 			continue
@@ -262,7 +262,7 @@ func findOneNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 		unit, found, next := findUnit(input[id:])
 		if found {
 			if begin == -1 {
-				return nil, 0, false, UnitUnknown, ErrNumberNotFound
+				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
 			}
 
 			return input[begin:id], id + next, true, unit, nil
@@ -272,7 +272,7 @@ func findOneNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 	}
 
 	if begin != -1 {
-		return nil, 0, false, UnitUnknown, ErrNumberNotFound
+		return nil, 0, false, UnitUnknown, ErrIncompleteNumber
 	}
 
 	return nil, 0, false, UnitUnknown, nil
