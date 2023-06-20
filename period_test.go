@@ -490,6 +490,11 @@ func TestParse(t *testing.T) {
 	require.Error(t, err)
 	require.Equal(t, Period{}, period)
 	require.Equal(t, false, found)
+
+	period, found, err = Parse(" - 3mo 10d 2y 23h 59m ৩s 10ms 30us 10ns")
+	require.Error(t, err)
+	require.Equal(t, Period{}, period)
+	require.Equal(t, false, found)
 }
 
 func TestCorretness(t *testing.T) {
@@ -565,4 +570,14 @@ func TestString(t *testing.T) {
 	require.Equal(t, true, found)
 
 	require.Equal(t, source, period.String())
+}
+
+func TestString2(t *testing.T) {
+	source := "-2y3mo10d23h59m58.01003001s"
+
+	period, found, err := Parse(source)
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Equal(t, source, period.StringDur())
 }

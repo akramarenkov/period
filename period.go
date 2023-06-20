@@ -115,7 +115,7 @@ func Parse(input string) (Period, bool, error) {
 	}
 
 	for unit, number := range found {
-		updated, err := parseNumber(period, number, unit)
+		updated, err := parseNumber(period, string(number), unit)
 		if err != nil {
 			return Period{}, false, err
 		}
@@ -199,6 +199,32 @@ func (prd Period) String() string {
 	if nanoseconds != 0 {
 		builder.WriteString(strconv.Itoa(int(nanoseconds)) + string(units[UnitNanosecond][0]))
 	}
+
+	return builder.String()
+}
+
+func (prd Period) StringDur() string {
+	builder := strings.Builder{}
+
+	units := knownUnits()
+
+	if prd.negative {
+		builder.WriteString("-")
+	}
+
+	if prd.years != 0 {
+		builder.WriteString(strconv.Itoa(prd.years) + string(units[UnitYear][0]))
+	}
+
+	if prd.months != 0 {
+		builder.WriteString(strconv.Itoa(prd.months) + string(units[UnitMonth][0]))
+	}
+
+	if prd.days != 0 {
+		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
+	}
+
+	builder.WriteString(prd.duration.String())
 
 	return builder.String()
 }
@@ -350,8 +376,25 @@ func findNamedNumbers(input []rune) (map[Unit][]rune, error) {
 	return retrieved, nil
 }
 
-func parseNumber(period Period, number []rune, unit Unit) (Period, error) {
-	parsed, err := strconv.Atoi(string(number))
+func parseNumber(period Period, number string, unit Unit) (Period, error) {
+	updated, err := parseYMDNumber(period, number, unit)
+	if err != nil {
+		return Period{}, err
+	}
+
+	return parseHMSNumber(updated, number, unit)
+}
+
+func parseYMDNumber(period Period, number string, unit Unit) (Period, error) {
+	switch unit {
+	case UnitYear:
+	case UnitMonth:
+	case UnitDay:
+	default:
+		return period, nil
+	}
+
+	parsed, err := strconv.Atoi(number)
 	if err != nil {
 		return Period{}, err
 	}
@@ -363,19 +406,81 @@ func parseNumber(period Period, number []rune, unit Unit) (Period, error) {
 		period.months = parsed
 	case UnitDay:
 		period.days = parsed
-	case UnitHour:
-		period.duration += time.Duration(parsed) * time.Hour
-	case UnitMinute:
-		period.duration += time.Duration(parsed) * time.Minute
-	case UnitSecond:
-		period.duration += time.Duration(parsed) * time.Second
-	case UnitMillisecond:
-		period.duration += time.Duration(parsed) * time.Millisecond
-	case UnitMicrosecond:
-		period.duration += time.Duration(parsed) * time.Microsecond
-	case UnitNanosecond:
-		period.duration += time.Duration(parsed) * time.Nanosecond
 	}
 
 	return period, nil
+}
+
+func parseHMSNumber(period Period, number string, unit Unit) (Period, error) {
+	switch unit {
+	case UnitHour:
+	case UnitMinute:
+	case UnitSecond:
+	case UnitMillisecond:
+	case UnitMicrosecond:
+	case UnitNanosecond:
+	default:
+		return period, nil
+	}
+
+	updated, err := parseHMSIntNumber(period, number, unit)
+	if err == nil {
+		return updated, nil
+	}
+
+	return parseHMSFloatNumber(period, number, unit)
+}
+
+func parseHMSIntNumber(period Period, number string, unit Unit) (Period, error) {
+	parsed, err := strconv.Atoi(number)
+	if err != nil {
+		return Period{}, err
+	}
+
+	return addToDuration(period, parsed, unit), nil
+}
+
+func parseHMSFloatNumber(period Period, number string, unit Unit) (Period, error) {
+	parsed, err := strconv.ParseFloat(number, 64)
+	if err != nil {
+		return Period{}, err
+	}
+
+	switch unit {
+	case UnitHour:
+		period.duration += time.Duration(parsed * float64(time.Hour))
+	case UnitMinute:
+		period.duration += time.Duration(parsed * float64(time.Minute))
+	case UnitSecond:
+		period.duration += time.Duration(parsed * float64(time.Second))
+	case UnitMillisecond:
+		period.duration += time.Duration(parsed * float64(time.Millisecond))
+	case UnitMicrosecond:
+		period.duration += time.Duration(parsed * float64(time.Microsecond))
+	case UnitNanosecond:
+		period.duration += time.Duration(parsed * float64(time.Nanosecond))
+	}
+
+	return period, nil
+}
+
+func addToDuration(period Period, parsed int, unit Unit) Period {
+	added := time.Duration(parsed)
+
+	switch unit {
+	case UnitHour:
+		period.duration += added * time.Hour
+	case UnitMinute:
+		period.duration += added * time.Minute
+	case UnitSecond:
+		period.duration += added * time.Second
+	case UnitMillisecond:
+		period.duration += added * time.Millisecond
+	case UnitMicrosecond:
+		period.duration += added * time.Microsecond
+	case UnitNanosecond:
+		period.duration += added * time.Nanosecond
+	}
+
+	return period
 }
