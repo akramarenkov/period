@@ -159,6 +159,91 @@ func (prd Period) String() string {
 		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
 	}
 
+	if builder.Len() == 0 || prd.duration != 0 {
+		builder.WriteString(prd.duration.String())
+	}
+
+	return builder.String()
+}
+
+func (prd Period) String2() string {
+	builder := strings.Builder{}
+
+	units := knownUnits()
+
+	if prd.negative {
+		builder.WriteString("-")
+	}
+
+	if prd.years != 0 {
+		builder.WriteString(strconv.Itoa(prd.years) + string(units[UnitYear][0]))
+	}
+
+	if prd.months != 0 {
+		builder.WriteString(strconv.Itoa(prd.months) + string(units[UnitMonth][0]))
+	}
+
+	if prd.days != 0 {
+		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
+	}
+	hours := prd.duration / time.Hour
+	prd.duration -= hours * time.Hour
+
+	minutes := prd.duration / time.Minute
+	prd.duration -= minutes * time.Minute
+
+	seconds := prd.duration / time.Second
+	prd.duration -= seconds * time.Second
+
+	milliseconds := prd.duration / time.Millisecond
+	prd.duration -= milliseconds * time.Millisecond
+
+	microseconds := prd.duration / time.Microsecond
+	prd.duration -= microseconds * time.Microsecond
+
+	nanoseconds := prd.duration
+
+	secondsImitation := float64(seconds)
+	secondsImitation += float64(milliseconds) * float64(time.Millisecond) / float64(time.Second)
+	secondsImitation += float64(microseconds) * float64(time.Microsecond) / float64(time.Second)
+	secondsImitation += float64(nanoseconds) * float64(time.Nanosecond) / float64(time.Second)
+
+	if hours != 0 {
+		builder.WriteString(strconv.Itoa(int(hours)) + string(units[UnitHour][0]))
+	}
+
+	if minutes != 0 {
+		builder.WriteString(strconv.Itoa(int(minutes)) + string(units[UnitMinute][0]))
+	}
+
+	if secondsImitation != 0 {
+		builder.WriteString(strconv.FormatFloat(secondsImitation, 'f', -1, 64) + string(units[UnitSecond][0]))
+	}
+
+	return builder.String()
+}
+
+func (prd Period) String3() string {
+	builder := strings.Builder{}
+
+	units := knownUnits()
+
+	if prd.negative {
+		builder.WriteString("-")
+	}
+
+	if prd.years != 0 {
+		builder.WriteString(strconv.Itoa(prd.years) + string(units[UnitYear][0]))
+	}
+
+	if prd.months != 0 {
+		builder.WriteString(strconv.Itoa(prd.months) + string(units[UnitMonth][0]))
+	}
+
+	if prd.days != 0 {
+		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
+	}
+
 	hours := prd.duration / time.Hour
 	prd.duration -= hours * time.Hour
 
@@ -199,32 +284,6 @@ func (prd Period) String() string {
 	if nanoseconds != 0 {
 		builder.WriteString(strconv.Itoa(int(nanoseconds)) + string(units[UnitNanosecond][0]))
 	}
-
-	return builder.String()
-}
-
-func (prd Period) StringDur() string {
-	builder := strings.Builder{}
-
-	units := knownUnits()
-
-	if prd.negative {
-		builder.WriteString("-")
-	}
-
-	if prd.years != 0 {
-		builder.WriteString(strconv.Itoa(prd.years) + string(units[UnitYear][0]))
-	}
-
-	if prd.months != 0 {
-		builder.WriteString(strconv.Itoa(prd.months) + string(units[UnitMonth][0]))
-	}
-
-	if prd.days != 0 {
-		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
-	}
-
-	builder.WriteString(prd.duration.String())
 
 	return builder.String()
 }

@@ -562,8 +562,8 @@ func TestCorretnessNegative(t *testing.T) {
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 }
 
-func TestString(t *testing.T) {
-	source := "-2y3mo10d23h59m58s10ms30us10ns"
+func TestStringWithoutDuration(t *testing.T) {
+	source := "-2y3mo10d"
 
 	period, found, err := Parse(source)
 	require.NoError(t, err)
@@ -572,12 +572,31 @@ func TestString(t *testing.T) {
 	require.Equal(t, source, period.String())
 }
 
-func TestString2(t *testing.T) {
+func TestStringWithDuration(t *testing.T) {
 	source := "-2y3mo10d23h59m58.01003001s"
 
 	period, found, err := Parse(source)
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 
-	require.Equal(t, source, period.StringDur())
+	require.Equal(t, source, period.String())
+}
+
+func TestDurationImitation(t *testing.T) {
+	source := "-23.1h59.1m58.01003001s10.1ms10.1us1.1ns"
+
+	period, found, err := Parse(source)
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	duration, err := time.ParseDuration(source)
+	require.NoError(t, err)
+	if period.negative {
+		require.Equal(t, duration, -period.duration)
+	} else {
+		require.Equal(t, duration, period.duration)
+	}
+
+	require.Equal(t, duration.String(), period.String())
+	require.Equal(t, duration.String(), period.String2())
 }
