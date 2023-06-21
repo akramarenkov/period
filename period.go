@@ -191,15 +191,6 @@ func (prd Period) parseHMSIntNumber(number string, unit Unit) (Period, error) {
 	return prd.addInt(parsed, unit)
 }
 
-func (prd Period) parseHMSFloatNumber(number string, unit Unit) (Period, error) {
-	parsed, err := strconv.ParseFloat(number, 64)
-	if err != nil {
-		return Period{}, err
-	}
-
-	return prd.addFloat(parsed, unit)
-}
-
 func (prd Period) addInt(parsed int, unit Unit) (Period, error) {
 	added := time.Duration(parsed)
 
@@ -226,6 +217,15 @@ func (prd Period) addInt(parsed int, unit Unit) (Period, error) {
 	prd.duration = sum
 
 	return prd, nil
+}
+
+func (prd Period) parseHMSFloatNumber(number string, unit Unit) (Period, error) {
+	parsed, err := strconv.ParseFloat(number, 64)
+	if err != nil {
+		return Period{}, err
+	}
+
+	return prd.addFloat(parsed, unit)
 }
 
 func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
