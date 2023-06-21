@@ -8,6 +8,11 @@ import (
 	"unicode"
 )
 
+const (
+	dotSign   = '.'
+	minusSign = '-'
+)
+
 var (
 	ErrDurationOverflow      = errors.New("duration value overflow")
 	ErrIncompleteNumber      = errors.New("incomplete named number")
@@ -287,7 +292,7 @@ func (prd Period) String() string {
 	builder := &strings.Builder{}
 
 	if prd.negative {
-		builder.WriteString("-")
+		builder.WriteByte(minusSign)
 	}
 
 	if prd.years != 0 {
@@ -347,7 +352,7 @@ func isNegative(input []rune) (bool, int, error) {
 			continue
 		}
 
-		if symbol == '-' {
+		if symbol == minusSign {
 			found = true
 			continue
 		}
@@ -368,6 +373,83 @@ func isNegative(input []rune) (bool, int, error) {
 	}
 
 	return false, 0, nil
+}
+
+func findNumbers(input []rune, table UnitsTable) (map[Unit][]rune, error) {
+	retrieved := map[Unit][]rune{}
+
+	shift := 0
+
+	for shift != len(input) {
+		number, next, found, unit, err := findNumber(input[shift:], table)
+		if err != nil {
+			return nil, err
+		}
+
+		if !found {
+			return nil, nil
+		}
+
+		if _, exists := retrieved[unit]; exists {
+			return nil, ErrNumberUnitIsNotUnique
+		}
+
+		retrieved[unit] = number
+
+		shift += next
+	}
+
+	return retrieved, nil
+}
+
+func findNumber(input []rune, table UnitsTable) ([]rune, int, bool, Unit, error) {
+	begin := -1
+	doted := false
+
+	for id, symbol := range input {
+		if unicode.IsSpace(symbol) {
+			if begin != -1 {
+				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+			}
+
+			continue
+		}
+
+		if unicode.IsDigit(symbol) {
+			if begin == -1 {
+				begin = id
+			}
+
+			continue
+		}
+
+		if symbol == dotSign && !doted {
+			if begin == -1 {
+				begin = id
+			}
+
+			doted = true
+
+			continue
+		}
+
+		unit, found, next := findUnit(input[id:], table)
+		if found {
+			if begin == -1 {
+				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+			}
+
+			return input[begin:id], id + next, true, unit, nil
+		}
+
+		return nil, 0, false, UnitUnknown, ErrUnexpectedSymbol
+	}
+
+	if begin != -1 {
+		return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+	}
+
+	return nil, 0, false, UnitUnknown, nil
 }
 
 func findUnit(input []rune, table UnitsTable) (Unit, bool, int) {
@@ -407,83 +489,6 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 	}
 
 	return false
-}
-
-func findNumber(input []rune, table UnitsTable) ([]rune, int, bool, Unit, error) {
-	begin := -1
-	doted := false
-
-	for id, symbol := range input {
-		if unicode.IsSpace(symbol) {
-			if begin != -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
-			}
-
-			continue
-		}
-
-		if unicode.IsDigit(symbol) {
-			if begin == -1 {
-				begin = id
-			}
-
-			continue
-		}
-
-		if symbol == '.' && !doted {
-			if begin == -1 {
-				begin = id
-			}
-
-			doted = true
-
-			continue
-		}
-
-		unit, found, next := findUnit(input[id:], table)
-		if found {
-			if begin == -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
-			}
-
-			return input[begin:id], id + next, true, unit, nil
-		}
-
-		return nil, 0, false, UnitUnknown, ErrUnexpectedSymbol
-	}
-
-	if begin != -1 {
-		return nil, 0, false, UnitUnknown, ErrIncompleteNumber
-	}
-
-	return nil, 0, false, UnitUnknown, nil
-}
-
-func findNumbers(input []rune, table UnitsTable) (map[Unit][]rune, error) {
-	retrieved := map[Unit][]rune{}
-
-	shift := 0
-
-	for shift != len(input) {
-		number, next, found, unit, err := findNumber(input[shift:], table)
-		if err != nil {
-			return nil, err
-		}
-
-		if !found {
-			return nil, nil
-		}
-
-		if _, exists := retrieved[unit]; exists {
-			return nil, ErrNumberUnitIsNotUnique
-		}
-
-		retrieved[unit] = number
-
-		shift += next
-	}
-
-	return retrieved, nil
 }
 
 func isValidUnitsTable(table UnitsTable) error {
