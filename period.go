@@ -148,23 +148,14 @@ func parse(input string, table UnitsTable) (Period, bool, error) {
 }
 
 func (prd Period) parseNumber(number string, unit Unit) (Period, error) {
-	updated, err := prd.parseYMDNumber(number, unit)
-	if err != nil {
-		return Period{}, err
+	if isYMDUnit(unit) {
+		return prd.parseYMDNumber(number, unit)
 	}
 
-	return updated.parseHMSNumber(number, unit)
+	return prd.parseHMSNumber(number, unit)
 }
 
 func (prd Period) parseYMDNumber(number string, unit Unit) (Period, error) {
-	switch unit {
-	case UnitYear:
-	case UnitMonth:
-	case UnitDay:
-	default:
-		return prd, nil
-	}
-
 	parsed, err := strconv.Atoi(number)
 	if err != nil {
 		return Period{}, err
@@ -183,17 +174,6 @@ func (prd Period) parseYMDNumber(number string, unit Unit) (Period, error) {
 }
 
 func (prd Period) parseHMSNumber(number string, unit Unit) (Period, error) {
-	switch unit {
-	case UnitHour:
-	case UnitMinute:
-	case UnitSecond:
-	case UnitMillisecond:
-	case UnitMicrosecond:
-	case UnitNanosecond:
-	default:
-		return prd, nil
-	}
-
 	updated, err := prd.parseHMSIntNumber(number, unit)
 	if err == nil {
 		return updated, nil
@@ -537,4 +517,16 @@ func isValidUnit(unit Unit) error {
 	}
 
 	return nil
+}
+
+func isYMDUnit(unit Unit) bool {
+	switch unit {
+	case UnitYear:
+	case UnitMonth:
+	case UnitDay:
+	default:
+		return false
+	}
+
+	return true
 }
