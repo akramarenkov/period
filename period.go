@@ -18,6 +18,7 @@ var (
 	ErrIncompleteNumber      = errors.New("incomplete named number")
 	ErrInvalidExpression     = errors.New("invalid expression")
 	ErrInvalidUnit           = errors.New("invalid unit")
+	ErrMissingUnit           = errors.New("missing unit")
 	ErrMissingUnitModifier   = errors.New("unit modifier is missing")
 	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
 	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
@@ -36,6 +37,10 @@ const (
 	UnitMillisecond
 	UnitMicrosecond
 	UnitNanosecond
+)
+
+const (
+	validUnitsQuantity = 9
 )
 
 type UnitsTable map[Unit][][]rune
@@ -106,7 +111,7 @@ func Parse(input string) (Period, bool, error) {
 }
 
 func ParseCustom(input string, table UnitsTable) (Period, bool, error) {
-	if err := isValidUnitsTable(table); err != nil {
+	if err := IsValidUnitsTable(table); err != nil {
 		return Period{}, false, err
 	}
 
@@ -485,11 +490,15 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 	return false
 }
 
-func isValidUnitsTable(table UnitsTable) error {
+func IsValidUnitsTable(table UnitsTable) error {
+	unitsQuantity := 0
+
 	for unit, modifier := range table {
 		if err := isValidUnit(unit); err != nil {
 			return err
 		}
+
+		unitsQuantity++
 
 		if len(modifier) == 0 {
 			return ErrMissingUnitModifier
@@ -498,6 +507,10 @@ func isValidUnitsTable(table UnitsTable) error {
 		if len(modifier[0]) == 0 {
 			return ErrMissingUnitModifier
 		}
+	}
+
+	if unitsQuantity != validUnitsQuantity {
+		return ErrMissingUnit
 	}
 
 	return nil
