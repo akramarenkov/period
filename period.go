@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"golang.org/x/exp/constraints"
 )
 
 type Unit int
@@ -543,4 +545,35 @@ func addToDuration(period Period, parsed int, unit Unit) Period {
 	}
 
 	return period
+}
+
+func sumSigned[Type constraints.Signed](one Type, two Type) (Type, bool) {
+	var zero Type
+
+	sum := one + two
+
+	switch {
+	case one > zero && two > zero:
+		if sum < one {
+			return zero, true
+		}
+	case one < zero && two < zero:
+		if sum > one {
+			return zero, true
+		}
+	}
+
+	return sum, false
+}
+
+func sumUnsigned[Type constraints.Unsigned](one Type, two Type) (Type, bool) {
+	var zero Type
+
+	sum := one + two
+
+	if sum < one {
+		return zero, true
+	}
+
+	return sum, false
 }
