@@ -296,17 +296,41 @@ func (prd Period) String() string {
 	}
 
 	if prd.years != 0 {
-		builder.WriteString(strconv.Itoa(prd.years) + string(prd.table[UnitYear][0]))
+		builder.WriteString(strconv.Itoa(prd.years))
+		builder.WriteString(string(prd.table[UnitYear][0]))
 	}
 
 	if prd.months != 0 {
-		builder.WriteString(strconv.Itoa(prd.months) + string(prd.table[UnitMonth][0]))
+		builder.WriteString(strconv.Itoa(prd.months))
+		builder.WriteString(string(prd.table[UnitMonth][0]))
 	}
 
 	if prd.days != 0 {
-		builder.WriteString(strconv.Itoa(prd.days) + string(prd.table[UnitDay][0]))
+		builder.WriteString(strconv.Itoa(prd.days))
+		builder.WriteString(string(prd.table[UnitDay][0]))
 	}
 
+	hours, minutes, seconds := prd.countHMS()
+
+	if hours != 0 {
+		builder.WriteString(strconv.Itoa(hours))
+		builder.WriteString(string(prd.table[UnitHour][0]))
+	}
+
+	if minutes != 0 {
+		builder.WriteString(strconv.Itoa(minutes))
+		builder.WriteString(string(prd.table[UnitMinute][0]))
+	}
+
+	if seconds != 0 {
+		builder.WriteString(strconv.FormatFloat(seconds, 'f', -1, 64))
+		builder.WriteString(string(prd.table[UnitSecond][0]))
+	}
+
+	return builder.String()
+}
+
+func (prd Period) countHMS() (int, int, float64) {
 	hours := prd.duration / time.Hour
 	prd.duration -= hours * time.Hour
 
@@ -329,19 +353,7 @@ func (prd Period) String() string {
 	secondsImitation += float64(microseconds) * float64(time.Microsecond) / float64(time.Second)
 	secondsImitation += float64(nanoseconds) * float64(time.Nanosecond) / float64(time.Second)
 
-	if hours != 0 {
-		builder.WriteString(strconv.Itoa(int(hours)) + string(prd.table[UnitHour][0]))
-	}
-
-	if minutes != 0 {
-		builder.WriteString(strconv.Itoa(int(minutes)) + string(prd.table[UnitMinute][0]))
-	}
-
-	if secondsImitation != 0 {
-		builder.WriteString(strconv.FormatFloat(secondsImitation, 'f', -1, 64) + string(prd.table[UnitSecond][0]))
-	}
-
-	return builder.String()
+	return int(hours), int(minutes), secondsImitation
 }
 
 func isNegative(input []rune) (bool, int, error) {
