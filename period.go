@@ -6,8 +6,6 @@ import (
 	"strings"
 	"time"
 	"unicode"
-
-	"golang.org/x/exp/constraints"
 )
 
 type Unit int
@@ -30,6 +28,7 @@ var (
 	ErrInvalidExpression     = errors.New("invalid expression")
 	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
 	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
+	ErrDurationOverflow      = errors.New("duration overflow")
 )
 
 func knownUnits() map[Unit][][]rune {
@@ -499,7 +498,7 @@ func parseHMSIntNumber(period Period, number string, unit Unit) (Period, error) 
 		return Period{}, err
 	}
 
-	return addToDuration(period, parsed, unit), nil
+	return addToDuration(period, parsed, unit)
 }
 
 func parseHMSFloatNumber(period Period, number string, unit Unit) (Period, error) {
@@ -508,72 +507,57 @@ func parseHMSFloatNumber(period Period, number string, unit Unit) (Period, error
 		return Period{}, err
 	}
 
+	var added time.Duration
+
 	switch unit {
 	case UnitHour:
-		period.duration += time.Duration(parsed * float64(time.Hour))
+		added = time.Duration(parsed * float64(time.Hour))
 	case UnitMinute:
-		period.duration += time.Duration(parsed * float64(time.Minute))
+		added = time.Duration(parsed * float64(time.Minute))
 	case UnitSecond:
-		period.duration += time.Duration(parsed * float64(time.Second))
+		added = time.Duration(parsed * float64(time.Second))
 	case UnitMillisecond:
-		period.duration += time.Duration(parsed * float64(time.Millisecond))
+		added = time.Duration(parsed * float64(time.Millisecond))
 	case UnitMicrosecond:
-		period.duration += time.Duration(parsed * float64(time.Microsecond))
+		added = time.Duration(parsed * float64(time.Microsecond))
 	case UnitNanosecond:
-		period.duration += time.Duration(parsed * float64(time.Nanosecond))
+		added = time.Duration(parsed * float64(time.Nanosecond))
 	}
+
+	sum, overflow := sumSigned(period.duration, added)
+	if overflow {
+		return Period{}, ErrDurationOverflow
+	}
+
+	period.duration = sum
 
 	return period, nil
 }
 
-func addToDuration(period Period, parsed int, unit Unit) Period {
+func addToDuration(period Period, parsed int, unit Unit) (Period, error) {
 	added := time.Duration(parsed)
 
 	switch unit {
 	case UnitHour:
-		period.duration += added * time.Hour
+		added = added * time.Hour
 	case UnitMinute:
-		period.duration += added * time.Minute
+		added = added * time.Minute
 	case UnitSecond:
-		period.duration += added * time.Second
+		added = added * time.Second
 	case UnitMillisecond:
-		period.duration += added * time.Millisecond
+		added = added * time.Millisecond
 	case UnitMicrosecond:
-		period.duration += added * time.Microsecond
+		added = added * time.Microsecond
 	case UnitNanosecond:
-		period.duration += added * time.Nanosecond
+		added = added * time.Nanosecond
 	}
 
-	return period
-}
-
-func sumSigned[Type constraints.Signed](one Type, two Type) (Type, bool) {
-	var zero Type
-
-	sum := one + two
-
-	switch {
-	case one > zero && two > zero:
-		if sum < one {
-			return zero, true
-		}
-	case one < zero && two < zero:
-		if sum > one {
-			return zero, true
-		}
+	sum, overflow := sumSigned(period.duration, added)
+	if overflow {
+		return Period{}, ErrDurationOverflow
 	}
 
-	return sum, false
-}
+	period.duration = sum
 
-func sumUnsigned[Type constraints.Unsigned](one Type, two Type) (Type, bool) {
-	var zero Type
-
-	sum := one + two
-
-	if sum < one {
-		return zero, true
-	}
-
-	return sum, false
+	return period, nil
 }
