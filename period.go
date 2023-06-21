@@ -116,7 +116,7 @@ func Parse(input string) (Period, bool, error) {
 	}
 
 	for unit, number := range found {
-		updated, err := parseNumber(period, string(number), unit)
+		updated, err := period.parseNumber(string(number), unit)
 		if err != nil {
 			return Period{}, false, err
 		}
@@ -125,6 +125,131 @@ func Parse(input string) (Period, bool, error) {
 	}
 
 	return period, true, nil
+}
+
+func (prd Period) parseNumber(number string, unit Unit) (Period, error) {
+	updated, err := prd.parseYMDNumber(number, unit)
+	if err != nil {
+		return Period{}, err
+	}
+
+	return updated.parseHMSNumber(number, unit)
+}
+
+func (prd Period) parseYMDNumber(number string, unit Unit) (Period, error) {
+	switch unit {
+	case UnitYear:
+	case UnitMonth:
+	case UnitDay:
+	default:
+		return prd, nil
+	}
+
+	parsed, err := strconv.Atoi(number)
+	if err != nil {
+		return Period{}, err
+	}
+
+	switch unit {
+	case UnitYear:
+		prd.years = parsed
+	case UnitMonth:
+		prd.months = parsed
+	case UnitDay:
+		prd.days = parsed
+	}
+
+	return prd, nil
+}
+
+func (prd Period) parseHMSNumber(number string, unit Unit) (Period, error) {
+	switch unit {
+	case UnitHour:
+	case UnitMinute:
+	case UnitSecond:
+	case UnitMillisecond:
+	case UnitMicrosecond:
+	case UnitNanosecond:
+	default:
+		return prd, nil
+	}
+
+	updated, err := prd.parseHMSIntNumber(number, unit)
+	if err == nil {
+		return updated, nil
+	}
+
+	return prd.parseHMSFloatNumber(number, unit)
+}
+
+func (prd Period) parseHMSIntNumber(number string, unit Unit) (Period, error) {
+	parsed, err := strconv.Atoi(number)
+	if err != nil {
+		return Period{}, err
+	}
+
+	return prd.addToDuration(parsed, unit)
+}
+
+func (prd Period) parseHMSFloatNumber(number string, unit Unit) (Period, error) {
+	parsed, err := strconv.ParseFloat(number, 64)
+	if err != nil {
+		return Period{}, err
+	}
+
+	var added time.Duration
+
+	switch unit {
+	case UnitHour:
+		added = time.Duration(parsed * float64(time.Hour))
+	case UnitMinute:
+		added = time.Duration(parsed * float64(time.Minute))
+	case UnitSecond:
+		added = time.Duration(parsed * float64(time.Second))
+	case UnitMillisecond:
+		added = time.Duration(parsed * float64(time.Millisecond))
+	case UnitMicrosecond:
+		added = time.Duration(parsed * float64(time.Microsecond))
+	case UnitNanosecond:
+		added = time.Duration(parsed * float64(time.Nanosecond))
+	}
+
+	sum, overflow := safeSum(prd.duration, added)
+	if overflow {
+		return Period{}, ErrDurationOverflow
+	}
+
+	prd.duration = sum
+
+	return prd, nil
+}
+
+func (prd Period) addToDuration(parsed int, unit Unit) (Period, error) {
+	added := time.Duration(parsed)
+
+	switch unit {
+	case UnitHour:
+		added = added * time.Hour
+	case UnitMinute:
+		added = added * time.Minute
+	case UnitSecond:
+		added = added * time.Second
+	case UnitMillisecond:
+		added = added * time.Millisecond
+	case UnitMicrosecond:
+		added = added * time.Microsecond
+	case UnitNanosecond:
+		added = added * time.Nanosecond
+	}
+
+	sum, overflow := safeSum(prd.duration, added)
+	if overflow {
+		return Period{}, ErrDurationOverflow
+	}
+
+	prd.duration = sum
+
+	return prd, nil
 }
 
 func (prd Period) ShiftTime(base time.Time) time.Time {
@@ -435,129 +560,4 @@ func findNamedNumbers(input []rune) (map[Unit][]rune, error) {
 	}
 
 	return retrieved, nil
-}
-
-func parseNumber(period Period, number string, unit Unit) (Period, error) {
-	updated, err := parseYMDNumber(period, number, unit)
-	if err != nil {
-		return Period{}, err
-	}
-
-	return parseHMSNumber(updated, number, unit)
-}
-
-func parseYMDNumber(period Period, number string, unit Unit) (Period, error) {
-	switch unit {
-	case UnitYear:
-	case UnitMonth:
-	case UnitDay:
-	default:
-		return period, nil
-	}
-
-	parsed, err := strconv.Atoi(number)
-	if err != nil {
-		return Period{}, err
-	}
-
-	switch unit {
-	case UnitYear:
-		period.years = parsed
-	case UnitMonth:
-		period.months = parsed
-	case UnitDay:
-		period.days = parsed
-	}
-
-	return period, nil
-}
-
-func parseHMSNumber(period Period, number string, unit Unit) (Period, error) {
-	switch unit {
-	case UnitHour:
-	case UnitMinute:
-	case UnitSecond:
-	case UnitMillisecond:
-	case UnitMicrosecond:
-	case UnitNanosecond:
-	default:
-		return period, nil
-	}
-
-	updated, err := parseHMSIntNumber(period, number, unit)
-	if err == nil {
-		return updated, nil
-	}
-
-	return parseHMSFloatNumber(period, number, unit)
-}
-
-func parseHMSIntNumber(period Period, number string, unit Unit) (Period, error) {
-	parsed, err := strconv.Atoi(number)
-	if err != nil {
-		return Period{}, err
-	}
-
-	return addToDuration(period, parsed, unit)
-}
-
-func parseHMSFloatNumber(period Period, number string, unit Unit) (Period, error) {
-	parsed, err := strconv.ParseFloat(number, 64)
-	if err != nil {
-		return Period{}, err
-	}
-
-	var added time.Duration
-
-	switch unit {
-	case UnitHour:
-		added = time.Duration(parsed * float64(time.Hour))
-	case UnitMinute:
-		added = time.Duration(parsed * float64(time.Minute))
-	case UnitSecond:
-		added = time.Duration(parsed * float64(time.Second))
-	case UnitMillisecond:
-		added = time.Duration(parsed * float64(time.Millisecond))
-	case UnitMicrosecond:
-		added = time.Duration(parsed * float64(time.Microsecond))
-	case UnitNanosecond:
-		added = time.Duration(parsed * float64(time.Nanosecond))
-	}
-
-	sum, overflow := safeSum(period.duration, added)
-	if overflow {
-		return Period{}, ErrDurationOverflow
-	}
-
-	period.duration = sum
-
-	return period, nil
-}
-
-func addToDuration(period Period, parsed int, unit Unit) (Period, error) {
-	added := time.Duration(parsed)
-
-	switch unit {
-	case UnitHour:
-		added = added * time.Hour
-	case UnitMinute:
-		added = added * time.Minute
-	case UnitSecond:
-		added = added * time.Second
-	case UnitMillisecond:
-		added = added * time.Millisecond
-	case UnitMicrosecond:
-		added = added * time.Microsecond
-	case UnitNanosecond:
-		added = added * time.Nanosecond
-	}
-
-	sum, overflow := safeSum(period.duration, added)
-	if overflow {
-		return Period{}, ErrDurationOverflow
-	}
-
-	period.duration = sum
-
-	return period, nil
 }
