@@ -15,6 +15,7 @@ const (
 
 var (
 	ErrDurationOverflow        = errors.New("duration value overflow")
+	ErrEmptyUnitModifier       = errors.New("unit modifier is empty")
 	ErrIncompleteNumber        = errors.New("incomplete named number")
 	ErrInvalidExpression       = errors.New("invalid expression")
 	ErrInvalidUnit             = errors.New("invalid unit")
@@ -507,11 +508,11 @@ func IsValidUnitsTable(table UnitsTable) error {
 			return ErrMissingUnitModifier
 		}
 
-		if len(list[0]) == 0 {
-			return ErrMissingUnitModifier
-		}
-
 		for _, modifier := range list {
+			if len(modifier) == 0 {
+				return ErrEmptyUnitModifier
+			}
+
 			stringed := string(modifier)
 
 			if _, exists := modifiers[stringed]; exists {

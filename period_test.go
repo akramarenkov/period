@@ -596,7 +596,7 @@ func TestIsValidUnitsTableMissingUnitModifier1(t *testing.T) {
 	require.Error(t, IsValidUnitsTable(table))
 }
 
-func TestIsValidUnitsTableMissingUnitModifier2(t *testing.T) {
+func TestIsValidUnitsTableEmptyUnitModifier(t *testing.T) {
 	table := UnitsTable{
 		UnitYear: {
 			[]rune("y"),
