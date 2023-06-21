@@ -302,7 +302,7 @@ func (prd Period) String() string {
 		builder.WriteString(string(prd.table[UnitMinute][0]))
 	}
 
-	if seconds != 0 {
+	if seconds != 0 || builder.Len() == 0 {
 		builder.WriteString(strconv.FormatFloat(seconds, 'f', -1, 64))
 		builder.WriteString(string(prd.table[UnitSecond][0]))
 	}
@@ -322,20 +322,20 @@ func (prd Period) countHMS() (int, int, float64) {
 	seconds := remainder / time.Second
 	remainder -= seconds * time.Second
 
-	milliseconds := remainder / time.Millisecond
-	remainder -= milliseconds * time.Millisecond
+	milli := remainder / time.Millisecond
+	remainder -= milli * time.Millisecond
 
-	microseconds := remainder / time.Microsecond
-	remainder -= microseconds * time.Microsecond
+	micro := remainder / time.Microsecond
+	remainder -= micro * time.Microsecond
 
-	nanoseconds := remainder
+	nano := remainder
 
-	secondsImitation := float64(seconds)
-	secondsImitation += float64(milliseconds) * float64(time.Millisecond) / float64(time.Second)
-	secondsImitation += float64(microseconds) * float64(time.Microsecond) / float64(time.Second)
-	secondsImitation += float64(nanoseconds) * float64(time.Nanosecond) / float64(time.Second)
+	floated := float64(seconds)
+	floated += float64(milli) * float64(time.Millisecond) / float64(time.Second)
+	floated += float64(micro) * float64(time.Microsecond) / float64(time.Second)
+	floated += float64(nano) * float64(time.Nanosecond) / float64(time.Second)
 
-	return int(hours), int(minutes), secondsImitation
+	return int(hours), int(minutes), floated
 }
 
 func isNegative(input []rune) (bool, int, error) {
