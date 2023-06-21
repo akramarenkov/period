@@ -14,14 +14,15 @@ const (
 )
 
 var (
-	ErrDurationOverflow      = errors.New("duration value overflow")
-	ErrIncompleteNumber      = errors.New("incomplete named number")
-	ErrInvalidExpression     = errors.New("invalid expression")
-	ErrInvalidUnit           = errors.New("invalid unit")
-	ErrMissingUnit           = errors.New("missing unit")
-	ErrMissingUnitModifier   = errors.New("unit modifier is missing")
-	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
-	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
+	ErrDurationOverflow        = errors.New("duration value overflow")
+	ErrIncompleteNumber        = errors.New("incomplete named number")
+	ErrInvalidExpression       = errors.New("invalid expression")
+	ErrInvalidUnit             = errors.New("invalid unit")
+	ErrMissingUnit             = errors.New("missing unit")
+	ErrMissingUnitModifier     = errors.New("unit modifier is missing")
+	ErrNumberUnitIsNotUnique   = errors.New("named number unit is not unique")
+	ErrUnexpectedSymbol        = errors.New("unexpected symbol")
+	ErrUnitModifierIsNotUnique = errors.New("unit modifier is not unique")
 )
 
 type Unit int
@@ -493,19 +494,31 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 func IsValidUnitsTable(table UnitsTable) error {
 	unitsQuantity := 0
 
-	for unit, modifier := range table {
+	modifiers := map[string]struct{}{}
+
+	for unit, list := range table {
 		if err := isValidUnit(unit); err != nil {
 			return err
 		}
 
 		unitsQuantity++
 
-		if len(modifier) == 0 {
+		if len(list) == 0 {
 			return ErrMissingUnitModifier
 		}
 
-		if len(modifier[0]) == 0 {
+		if len(list[0]) == 0 {
 			return ErrMissingUnitModifier
+		}
+
+		for _, modifier := range list {
+			stringed := string(modifier)
+
+			if _, exists := modifiers[stringed]; exists {
+				return ErrUnitModifierIsNotUnique
+			}
+
+			modifiers[stringed] = struct{}{}
 		}
 	}
 

@@ -233,7 +233,6 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, UnitYear, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
-
 }
 
 func TestFindUnitNotFound(t *testing.T) {
@@ -458,6 +457,59 @@ func TestIsValidUnitsTableMissingUnit(t *testing.T) {
 			[]rune("mo"),
 			[]rune("month"),
 			[]rune("months"),
+		},
+		UnitHour: {
+			[]rune("h"),
+			[]rune("hour"),
+			[]rune("hours"),
+		},
+		UnitMinute: {
+			[]rune("m"),
+			[]rune("minute"),
+			[]rune("minutes"),
+		},
+		UnitSecond: {
+			[]rune("s"),
+			[]rune("second"),
+			[]rune("seconds"),
+		},
+		UnitMillisecond: {
+			[]rune("ms"),
+			[]rune("millisecond"),
+			[]rune("milliseconds"),
+		},
+		UnitMicrosecond: {
+			[]rune("us"),
+			[]rune("µs"),
+			[]rune("microsecond"),
+			[]rune("microseconds"),
+		},
+		UnitNanosecond: {
+			[]rune("ns"),
+			[]rune("nanosecond"),
+			[]rune("nanoseconds"),
+		},
+	}
+
+	require.Error(t, IsValidUnitsTable(table))
+}
+
+func TestIsValidUnitsTableModifierIsNotUnique(t *testing.T) {
+	table := UnitsTable{
+		UnitYear: {
+			[]rune("y"),
+			[]rune("year"),
+			[]rune("years"),
+		},
+		UnitMonth: {
+			[]rune("m"),
+			[]rune("month"),
+			[]rune("months"),
+		},
+		UnitDay: {
+			[]rune("d"),
+			[]rune("day"),
+			[]rune("days"),
 		},
 		UnitHour: {
 			[]rune("h"),
