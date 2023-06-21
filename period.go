@@ -8,6 +8,16 @@ import (
 	"unicode"
 )
 
+var (
+	ErrDurationOverflow      = errors.New("duration value overflow")
+	ErrIncompleteNumber      = errors.New("incomplete named number")
+	ErrInvalidExpression     = errors.New("invalid expression")
+	ErrInvalidUnit           = errors.New("invalid unit")
+	ErrMissingUnitModifier   = errors.New("unit modifier is missing")
+	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
+	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
+)
+
 type Unit int
 
 const (
@@ -23,65 +33,55 @@ const (
 	UnitNanosecond
 )
 
-var (
-	ErrDurationOverflow      = errors.New("duration value overflow")
-	ErrIncompleteNumber      = errors.New("incomplete named number")
-	ErrInvalidExpression     = errors.New("invalid expression")
-	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
-	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
-)
+type UnitsTable map[Unit][][]rune
 
-func knownUnits() map[Unit][][]rune {
-	units := map[Unit][][]rune{
-		UnitYear: {
-			[]rune("y"),
-			[]rune("year"),
-			[]rune("years"),
-		},
-		UnitMonth: {
-			[]rune("mo"),
-			[]rune("month"),
-			[]rune("months"),
-		},
-		UnitDay: {
-			[]rune("d"),
-			[]rune("day"),
-			[]rune("days"),
-		},
-		UnitHour: {
-			[]rune("h"),
-			[]rune("hour"),
-			[]rune("hours"),
-		},
-		UnitMinute: {
-			[]rune("m"),
-			[]rune("minute"),
-			[]rune("minutes"),
-		},
-		UnitSecond: {
-			[]rune("s"),
-			[]rune("second"),
-			[]rune("seconds"),
-		},
-		UnitMillisecond: {
-			[]rune("ms"),
-			[]rune("millisecond"),
-			[]rune("milliseconds"),
-		},
-		UnitMicrosecond: {
-			[]rune("us"),
-			[]rune("µs"),
-			[]rune("microsecond"),
-			[]rune("microseconds"),
-		},
-		UnitNanosecond: {
-			[]rune("ns"),
-			[]rune("nanosecond"),
-			[]rune("nanoseconds"),
-		},
-	}
-
-	return units
+var defaultKnownUnits = UnitsTable{
+	UnitYear: {
+		[]rune("y"),
+		[]rune("year"),
+		[]rune("years"),
+	},
+	UnitMonth: {
+		[]rune("mo"),
+		[]rune("month"),
+		[]rune("months"),
+	},
+	UnitDay: {
+		[]rune("d"),
+		[]rune("day"),
+		[]rune("days"),
+	},
+	UnitHour: {
+		[]rune("h"),
+		[]rune("hour"),
+		[]rune("hours"),
+	},
+	UnitMinute: {
+		[]rune("m"),
+		[]rune("minute"),
+		[]rune("minutes"),
+	},
+	UnitSecond: {
+		[]rune("s"),
+		[]rune("second"),
+		[]rune("seconds"),
+	},
+	UnitMillisecond: {
+		[]rune("ms"),
+		[]rune("millisecond"),
+		[]rune("milliseconds"),
+	},
+	UnitMicrosecond: {
+		[]rune("us"),
+		[]rune("µs"),
+		[]rune("microsecond"),
+		[]rune("microseconds"),
+	},
+	UnitNanosecond: {
+		[]rune("ns"),
+		[]rune("nanosecond"),
+		[]rune("nanoseconds"),
+	},
 }
 
 type Period struct {
@@ -92,9 +92,23 @@ type Period struct {
 	days   int
 
 	duration time.Duration
+
+	table UnitsTable
 }
 
 func Parse(input string) (Period, bool, error) {
+	return parse(input, defaultKnownUnits)
+}
+
+func ParseCustom(input string, table UnitsTable) (Period, bool, error) {
+	if err := isValidUnitsTable(table); err != nil {
+		return Period{}, false, err
+	}
+
+	return parse(input, table)
+}
+
+func parse(input string, table UnitsTable) (Period, bool, error) {
 	runes := []rune(input)
 
 	negative, shift, err := isNegative(runes)
@@ -102,7 +116,7 @@ func Parse(input string) (Period, bool, error) {
 		return Period{}, false, err
 	}
 
-	found, err := findNamedNumbers(runes[shift:])
+	found, err := findNumbers(runes[shift:], table)
 	if err != nil {
 		return Period{}, false, err
 	}
@@ -113,6 +127,7 @@ func Parse(input string) (Period, bool, error) {
 
 	period := Period{
 		negative: negative,
+		table:    table,
 	}
 
 	for unit, number := range found {
@@ -269,52 +284,22 @@ func (prd Period) RelativeDuration(base time.Time) time.Duration {
 }
 
 func (prd Period) String() string {
-	builder := strings.Builder{}
-
-	units := knownUnits()
+	builder := &strings.Builder{}
 
 	if prd.negative {
 		builder.WriteString("-")
 	}
 
 	if prd.years != 0 {
-		builder.WriteString(strconv.Itoa(prd.years) + string(units[UnitYear][0]))
+		builder.WriteString(strconv.Itoa(prd.years) + string(prd.table[UnitYear][0]))
 	}
 
 	if prd.months != 0 {
-		builder.WriteString(strconv.Itoa(prd.months) + string(units[UnitMonth][0]))
+		builder.WriteString(strconv.Itoa(prd.months) + string(prd.table[UnitMonth][0]))
 	}
 
 	if prd.days != 0 {
-		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
-	}
-
-	if builder.Len() == 0 || prd.duration != 0 {
-		builder.WriteString(prd.duration.String())
-	}
-
-	return builder.String()
-}
-
-func (prd Period) String2() string {
-	builder := strings.Builder{}
-
-	units := knownUnits()
-
-	if prd.negative {
-		builder.WriteString("-")
-	}
-
-	if prd.years != 0 {
-		builder.WriteString(strconv.Itoa(prd.years) + string(units[UnitYear][0]))
-	}
-
-	if prd.months != 0 {
-		builder.WriteString(strconv.Itoa(prd.months) + string(units[UnitMonth][0]))
-	}
-
-	if prd.days != 0 {
-		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
+		builder.WriteString(strconv.Itoa(prd.days) + string(prd.table[UnitDay][0]))
 	}
 
 	hours := prd.duration / time.Hour
@@ -340,80 +325,15 @@ func (prd Period) String2() string {
 	secondsImitation += float64(nanoseconds) * float64(time.Nanosecond) / float64(time.Second)
 
 	if hours != 0 {
-		builder.WriteString(strconv.Itoa(int(hours)) + string(units[UnitHour][0]))
+		builder.WriteString(strconv.Itoa(int(hours)) + string(prd.table[UnitHour][0]))
 	}
 
 	if minutes != 0 {
-		builder.WriteString(strconv.Itoa(int(minutes)) + string(units[UnitMinute][0]))
+		builder.WriteString(strconv.Itoa(int(minutes)) + string(prd.table[UnitMinute][0]))
 	}
 
 	if secondsImitation != 0 {
-		builder.WriteString(strconv.FormatFloat(secondsImitation, 'f', -1, 64) + string(units[UnitSecond][0]))
-	}
-
-	return builder.String()
-}
-
-func (prd Period) String3() string {
-	builder := strings.Builder{}
-
-	units := knownUnits()
-
-	if prd.negative {
-		builder.WriteString("-")
-	}
-
-	if prd.years != 0 {
-		builder.WriteString(strconv.Itoa(prd.years) + string(units[UnitYear][0]))
-	}
-
-	if prd.months != 0 {
-		builder.WriteString(strconv.Itoa(prd.months) + string(units[UnitMonth][0]))
-	}
-
-	if prd.days != 0 {
-		builder.WriteString(strconv.Itoa(prd.days) + string(units[UnitDay][0]))
-	}
-
-	hours := prd.duration / time.Hour
-	prd.duration -= hours * time.Hour
-
-	minutes := prd.duration / time.Minute
-	prd.duration -= minutes * time.Minute
-
-	seconds := prd.duration / time.Second
-	prd.duration -= seconds * time.Second
-
-	milliseconds := prd.duration / time.Millisecond
-	prd.duration -= milliseconds * time.Millisecond
-
-	microseconds := prd.duration / time.Microsecond
-	prd.duration -= microseconds * time.Microsecond
-
-	nanoseconds := prd.duration
-
-	if hours != 0 {
-		builder.WriteString(strconv.Itoa(int(hours)) + string(units[UnitHour][0]))
-	}
-
-	if minutes != 0 {
-		builder.WriteString(strconv.Itoa(int(minutes)) + string(units[UnitMinute][0]))
-	}
-
-	if seconds != 0 {
-		builder.WriteString(strconv.Itoa(int(seconds)) + string(units[UnitSecond][0]))
-	}
-
-	if milliseconds != 0 {
-		builder.WriteString(strconv.Itoa(int(milliseconds)) + string(units[UnitMillisecond][0]))
-	}
-
-	if microseconds != 0 {
-		builder.WriteString(strconv.Itoa(int(microseconds)) + string(units[UnitMicrosecond][0]))
-	}
-
-	if nanoseconds != 0 {
-		builder.WriteString(strconv.Itoa(int(nanoseconds)) + string(units[UnitNanosecond][0]))
+		builder.WriteString(strconv.FormatFloat(secondsImitation, 'f', -1, 64) + string(prd.table[UnitSecond][0]))
 	}
 
 	return builder.String()
@@ -450,8 +370,8 @@ func isNegative(input []rune) (bool, int, error) {
 	return false, 0, nil
 }
 
-func findUnit(input []rune) (Unit, bool, int) {
-	for unit, list := range knownUnits() {
+func findUnit(input []rune, table UnitsTable) (Unit, bool, int) {
+	for unit, list := range table {
 		for _, modifier := range list {
 			if !isModifierPossibleMatch(input, modifier) {
 				continue
@@ -489,7 +409,7 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 	return false
 }
 
-func findNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
+func findNumber(input []rune, table UnitsTable) ([]rune, int, bool, Unit, error) {
 	begin := -1
 	doted := false
 
@@ -520,7 +440,7 @@ func findNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 			continue
 		}
 
-		unit, found, next := findUnit(input[id:])
+		unit, found, next := findUnit(input[id:], table)
 		if found {
 			if begin == -1 {
 				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
@@ -539,13 +459,13 @@ func findNamedNumber(input []rune) ([]rune, int, bool, Unit, error) {
 	return nil, 0, false, UnitUnknown, nil
 }
 
-func findNamedNumbers(input []rune) (map[Unit][]rune, error) {
+func findNumbers(input []rune, table UnitsTable) (map[Unit][]rune, error) {
 	retrieved := map[Unit][]rune{}
 
 	shift := 0
 
 	for shift != len(input) {
-		number, next, found, unit, err := findNamedNumber(input[shift:])
+		number, next, found, unit, err := findNumber(input[shift:], table)
 		if err != nil {
 			return nil, err
 		}
@@ -564,4 +484,40 @@ func findNamedNumbers(input []rune) (map[Unit][]rune, error) {
 	}
 
 	return retrieved, nil
+}
+
+func isValidUnitsTable(table UnitsTable) error {
+	for unit, modifier := range table {
+		if err := isValidUnit(unit); err != nil {
+			return err
+		}
+
+		if len(modifier) == 0 {
+			return ErrMissingUnitModifier
+		}
+
+		if len(modifier[0]) == 0 {
+			return ErrMissingUnitModifier
+		}
+	}
+
+	return nil
+}
+
+func isValidUnit(unit Unit) error {
+	switch unit {
+	case UnitYear:
+	case UnitMonth:
+	case UnitDay:
+	case UnitHour:
+	case UnitMinute:
+	case UnitSecond:
+	case UnitMillisecond:
+	case UnitMicrosecond:
+	case UnitNanosecond:
+	default:
+		return ErrInvalidUnit
+	}
+
+	return nil
 }
