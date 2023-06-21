@@ -121,13 +121,13 @@ func parse(input string, table UnitsTable) (Period, bool, error) {
 		return Period{}, false, err
 	}
 
-	if len(found) == 0 {
-		return Period{}, false, nil
-	}
-
 	period := Period{
 		negative: negative,
 		table:    table,
+	}
+
+	if len(found) == 0 {
+		return period, false, nil
 	}
 
 	for unit, number := range found {

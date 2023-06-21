@@ -462,12 +462,12 @@ func TestParse(t *testing.T) {
 
 	period, found, err = Parse("")
 	require.NoError(t, err)
-	require.Equal(t, Period{}, period)
+	require.Equal(t, Period{table: defaultKnownUnits}, period)
 	require.Equal(t, false, found)
 
 	period, found, err = Parse("   ")
 	require.NoError(t, err)
-	require.Equal(t, Period{}, period)
+	require.Equal(t, Period{table: defaultKnownUnits}, period)
 	require.Equal(t, false, found)
 
 	period, found, err = Parse("d")
