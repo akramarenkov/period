@@ -15,7 +15,15 @@ func TestSafeSumInt8(t *testing.T) {
 	require.Equal(t, int8(126), sum)
 	require.Equal(t, false, overflow)
 
+	sum, overflow = safeSum[int8](0, 126)
+	require.Equal(t, int8(126), sum)
+	require.Equal(t, false, overflow)
+
 	sum, overflow = safeSum[int8](126, 1)
+	require.Equal(t, int8(127), sum)
+	require.Equal(t, false, overflow)
+
+	sum, overflow = safeSum[int8](1, 126)
 	require.Equal(t, int8(127), sum)
 	require.Equal(t, false, overflow)
 
@@ -23,7 +31,15 @@ func TestSafeSumInt8(t *testing.T) {
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[int8](1, 127)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[int8](127, 2)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[int8](2, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
@@ -31,11 +47,23 @@ func TestSafeSumInt8(t *testing.T) {
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[int8](3, 127)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[int8](127, 125)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[int8](125, 127)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[int8](127, 126)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[int8](126, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
@@ -47,7 +75,15 @@ func TestSafeSumInt8(t *testing.T) {
 	require.Equal(t, int8(-127), sum)
 	require.Equal(t, false, overflow)
 
+	sum, overflow = safeSum[int8](0, -127)
+	require.Equal(t, int8(-127), sum)
+	require.Equal(t, false, overflow)
+
 	sum, overflow = safeSum[int8](-127, -1)
+	require.Equal(t, int8(-128), sum)
+	require.Equal(t, false, overflow)
+
+	sum, overflow = safeSum[int8](-1, -127)
 	require.Equal(t, int8(-128), sum)
 	require.Equal(t, false, overflow)
 
@@ -55,7 +91,15 @@ func TestSafeSumInt8(t *testing.T) {
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[int8](-1, -128)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[int8](-128, -2)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[int8](-2, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
@@ -63,11 +107,23 @@ func TestSafeSumInt8(t *testing.T) {
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[int8](-3, -128)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[int8](-128, -126)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[int8](-126, -128)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[int8](-128, -127)
+	require.Equal(t, int8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[int8](-127, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
