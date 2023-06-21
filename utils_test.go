@@ -85,7 +85,15 @@ func TestSafeSumUint8(t *testing.T) {
 	require.Equal(t, uint8(254), sum)
 	require.Equal(t, false, overflow)
 
+	sum, overflow = safeSum[uint8](0, 254)
+	require.Equal(t, uint8(254), sum)
+	require.Equal(t, false, overflow)
+
 	sum, overflow = safeSum[uint8](254, 1)
+	require.Equal(t, uint8(255), sum)
+	require.Equal(t, false, overflow)
+
+	sum, overflow = safeSum[uint8](1, 254)
 	require.Equal(t, uint8(255), sum)
 	require.Equal(t, false, overflow)
 
@@ -93,7 +101,15 @@ func TestSafeSumUint8(t *testing.T) {
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[uint8](1, 255)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[uint8](255, 2)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[uint8](2, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
@@ -101,7 +117,15 @@ func TestSafeSumUint8(t *testing.T) {
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[uint8](3, 255)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[uint8](255, 253)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[uint8](253, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
@@ -109,7 +133,23 @@ func TestSafeSumUint8(t *testing.T) {
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
+	sum, overflow = safeSum[uint8](254, 255)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
 	sum, overflow = safeSum[uint8](255, 255)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[uint8](128, 128)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[uint8](127, 129)
+	require.Equal(t, uint8(0), sum)
+	require.Equal(t, true, overflow)
+
+	sum, overflow = safeSum[uint8](129, 127)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 }
