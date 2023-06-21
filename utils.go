@@ -2,18 +2,18 @@ package period
 
 import "golang.org/x/exp/constraints"
 
-func safeSum[Type constraints.Integer](one Type, two Type) (Type, bool) {
+func safeSum[Type constraints.Integer](first Type, second Type) (Type, bool) {
 	var zero Type
 
-	sum := one + two
+	sum := first + second
 
 	switch {
-	case one > zero && two > zero:
-		if sum < one {
+	case first > zero && second > zero:
+		if sum < first {
 			return zero, true
 		}
-	case one < zero && two < zero:
-		if sum > one {
+	case first < zero && second < zero:
+		if sum > first {
 			return zero, true
 		}
 	}
