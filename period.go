@@ -40,7 +40,7 @@ const (
 
 type UnitsTable map[Unit][][]rune
 
-var defaultKnownUnits = UnitsTable{
+var defaultUnits = UnitsTable{
 	UnitYear: {
 		[]rune("y"),
 		[]rune("year"),
@@ -102,7 +102,7 @@ type Period struct {
 }
 
 func Parse(input string) (Period, bool, error) {
-	return parse(input, defaultKnownUnits)
+	return parse(input, defaultUnits)
 }
 
 func ParseCustom(input string, table UnitsTable) (Period, bool, error) {
