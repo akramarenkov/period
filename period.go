@@ -311,22 +311,24 @@ func (prd Period) String() string {
 }
 
 func (prd Period) countHMS() (int, int, float64) {
-	hours := prd.duration / time.Hour
-	prd.duration -= hours * time.Hour
+	remainder := prd.duration
 
-	minutes := prd.duration / time.Minute
-	prd.duration -= minutes * time.Minute
+	hours := remainder / time.Hour
+	remainder -= hours * time.Hour
 
-	seconds := prd.duration / time.Second
-	prd.duration -= seconds * time.Second
+	minutes := remainder / time.Minute
+	remainder -= minutes * time.Minute
 
-	milliseconds := prd.duration / time.Millisecond
-	prd.duration -= milliseconds * time.Millisecond
+	seconds := remainder / time.Second
+	remainder -= seconds * time.Second
 
-	microseconds := prd.duration / time.Microsecond
-	prd.duration -= microseconds * time.Microsecond
+	milliseconds := remainder / time.Millisecond
+	remainder -= milliseconds * time.Millisecond
 
-	nanoseconds := prd.duration
+	microseconds := remainder / time.Microsecond
+	remainder -= microseconds * time.Microsecond
+
+	nanoseconds := remainder
 
 	secondsImitation := float64(seconds)
 	secondsImitation += float64(milliseconds) * float64(time.Millisecond) / float64(time.Second)
