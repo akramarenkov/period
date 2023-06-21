@@ -524,7 +524,7 @@ func parseHMSFloatNumber(period Period, number string, unit Unit) (Period, error
 		added = time.Duration(parsed * float64(time.Nanosecond))
 	}
 
-	sum, overflow := sumSigned(period.duration, added)
+	sum, overflow := safeSum(period.duration, added)
 	if overflow {
 		return Period{}, ErrDurationOverflow
 	}
@@ -552,7 +552,7 @@ func addToDuration(period Period, parsed int, unit Unit) (Period, error) {
 		added = added * time.Nanosecond
 	}
 
-	sum, overflow := sumSigned(period.duration, added)
+	sum, overflow := safeSum(period.duration, added)
 	if overflow {
 		return Period{}, ErrDurationOverflow
 	}

@@ -2,7 +2,7 @@ package period
 
 import "golang.org/x/exp/constraints"
 
-func sumSigned[Type constraints.Signed](one Type, two Type) (Type, bool) {
+func safeSum[Type constraints.Integer](one Type, two Type) (Type, bool) {
 	var zero Type
 
 	sum := one + two
@@ -16,18 +16,6 @@ func sumSigned[Type constraints.Signed](one Type, two Type) (Type, bool) {
 		if sum > one {
 			return zero, true
 		}
-	}
-
-	return sum, false
-}
-
-func sumUnsigned[Type constraints.Unsigned](one Type, two Type) (Type, bool) {
-	var zero Type
-
-	sum := one + two
-
-	if sum < one {
-		return zero, true
 	}
 
 	return sum, false
