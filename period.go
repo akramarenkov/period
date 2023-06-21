@@ -24,11 +24,11 @@ const (
 )
 
 var (
+	ErrDurationOverflow      = errors.New("duration value overflow")
 	ErrIncompleteNumber      = errors.New("incomplete named number")
 	ErrInvalidExpression     = errors.New("invalid expression")
 	ErrNumberUnitIsNotUnique = errors.New("named number unit is not unique")
 	ErrUnexpectedSymbol      = errors.New("unexpected symbol")
-	ErrDurationOverflow      = errors.New("duration overflow")
 )
 
 func knownUnits() map[Unit][][]rune {
@@ -188,7 +188,7 @@ func (prd Period) parseHMSIntNumber(number string, unit Unit) (Period, error) {
 		return Period{}, err
 	}
 
-	return prd.addToDuration(parsed, unit)
+	return prd.addInt(parsed, unit)
 }
 
 func (prd Period) parseHMSFloatNumber(number string, unit Unit) (Period, error) {
@@ -197,34 +197,10 @@ func (prd Period) parseHMSFloatNumber(number string, unit Unit) (Period, error) 
 		return Period{}, err
 	}
 
-	var added time.Duration
-
-	switch unit {
-	case UnitHour:
-		added = time.Duration(parsed * float64(time.Hour))
-	case UnitMinute:
-		added = time.Duration(parsed * float64(time.Minute))
-	case UnitSecond:
-		added = time.Duration(parsed * float64(time.Second))
-	case UnitMillisecond:
-		added = time.Duration(parsed * float64(time.Millisecond))
-	case UnitMicrosecond:
-		added = time.Duration(parsed * float64(time.Microsecond))
-	case UnitNanosecond:
-		added = time.Duration(parsed * float64(time.Nanosecond))
-	}
-
-	sum, overflow := safeSum(prd.duration, added)
-	if overflow {
-		return Period{}, ErrDurationOverflow
-	}
-
-	prd.duration = sum
-
-	return prd, nil
+	return prd.addFloat(parsed, unit)
 }
 
-func (prd Period) addToDuration(parsed int, unit Unit) (Period, error) {
+func (prd Period) addInt(parsed int, unit Unit) (Period, error) {
 	added := time.Duration(parsed)
 
 	switch unit {
@@ -240,6 +216,34 @@ func (prd Period) addToDuration(parsed int, unit Unit) (Period, error) {
 		added = added * time.Microsecond
 	case UnitNanosecond:
 		added = added * time.Nanosecond
+	}
+
+	sum, overflow := safeSum(prd.duration, added)
+	if overflow {
+		return Period{}, ErrDurationOverflow
+	}
+
+	prd.duration = sum
+
+	return prd, nil
+}
+
+func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
+	var added time.Duration
+
+	switch unit {
+	case UnitHour:
+		added = time.Duration(parsed * float64(time.Hour))
+	case UnitMinute:
+		added = time.Duration(parsed * float64(time.Minute))
+	case UnitSecond:
+		added = time.Duration(parsed * float64(time.Second))
+	case UnitMillisecond:
+		added = time.Duration(parsed * float64(time.Millisecond))
+	case UnitMicrosecond:
+		added = time.Duration(parsed * float64(time.Microsecond))
+	case UnitNanosecond:
+		added = time.Duration(parsed * float64(time.Nanosecond))
 	}
 
 	sum, overflow := safeSum(prd.duration, added)
