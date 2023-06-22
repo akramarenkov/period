@@ -261,6 +261,38 @@ func (prd Period) RelativeDuration(base time.Time) time.Duration {
 	return prd.ShiftTime(base).Sub(base)
 }
 
+func (prd Period) Years() int {
+	if prd.negative {
+		return -prd.years
+	}
+
+	return prd.years
+}
+
+func (prd Period) Months() int {
+	if prd.negative {
+		return -prd.months
+	}
+
+	return prd.months
+}
+
+func (prd Period) Days() int {
+	if prd.negative {
+		return -prd.days
+	}
+
+	return prd.days
+}
+
+func (prd Period) Duration() time.Duration {
+	if prd.negative {
+		return -prd.duration
+	}
+
+	return prd.duration
+}
+
 func (prd Period) String() string {
 	builder := &strings.Builder{}
 
