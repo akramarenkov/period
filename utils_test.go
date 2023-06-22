@@ -363,7 +363,6 @@ func TestSafeMultiplicationUint8(t *testing.T) {
 	require.Equal(t, 65536, variants)
 }
 
-/*
 func TestSafeMultiplicationInt8(t *testing.T) {
 	variants := 0
 
@@ -383,4 +382,4 @@ func TestSafeMultiplicationInt8(t *testing.T) {
 	}
 
 	require.Equal(t, 65536, variants)
-}*/
+}
