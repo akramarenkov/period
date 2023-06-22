@@ -470,6 +470,43 @@ func TestIsValidUnitsTableModifierIsNotUnique(t *testing.T) {
 }
 
 func TestParse(t *testing.T) {
+	period, found, err := Parse(" 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Equal(t, 2, period.Years())
+	require.Equal(t, 3, period.Months())
+	require.Equal(t, 10, period.Days())
+	require.Equal(t, time.Duration(86398010030010), period.Duration())
+
+	period, found, err = Parse(" 3mo 10d 2y 23h59m58s10ms30us10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Equal(t, 2, period.Years())
+	require.Equal(t, 3, period.Months())
+	require.Equal(t, 10, period.Days())
+	require.Equal(t, time.Duration(86398010030010), period.Duration())
+
+	duration, err := time.ParseDuration("23h59m58s10ms30us10ns")
+	require.NoError(t, err)
+	require.Equal(t, duration, period.Duration())
+
+	period, found, err = Parse("  3mo 10d 2y 23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Equal(t, 2, period.Years())
+	require.Equal(t, 3, period.Months())
+	require.Equal(t, 10, period.Days())
+	require.Equal(t, time.Duration(86398010030010), period.Duration())
+
+	duration, err = time.ParseDuration("23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, duration, period.Duration())
+}
+
+func TestParseNegative(t *testing.T) {
 	period, found, err := Parse(" - 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns")
 	require.NoError(t, err)
 	require.Equal(t, true, found)
@@ -539,6 +576,61 @@ func TestParseEmpty(t *testing.T) {
 	period, found, err = Parse("   ")
 	require.NoError(t, err)
 	require.Equal(t, Period{table: defaultUnits}, period)
+	require.Equal(t, false, found)
+}
+
+func TestParseCustom(t *testing.T) {
+	input := " 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns"
+
+	periodRegular, found, err := Parse(input)
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	periodCustom, found, err := ParseCustom(input, defaultUnits)
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	periodUnsafe, found, err := ParseCustomUnsafe(input, defaultUnits)
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Equal(t, periodRegular, periodCustom)
+	require.Equal(t, periodRegular, periodUnsafe)
+}
+
+func TestParseCustomInvalidUnitsTable(t *testing.T) {
+	input := " 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns"
+
+	table := UnitsTable{
+		UnitYear: {
+			"y",
+		},
+		UnitDay: {
+			"d",
+		},
+		UnitHour: {
+			"h",
+		},
+		UnitMinute: {
+			"m",
+		},
+		UnitSecond: {
+			"s",
+		},
+		UnitMillisecond: {
+			"ms",
+		},
+		UnitMicrosecond: {
+			"us",
+			"µs",
+		},
+		UnitNanosecond: {
+			"ns",
+		},
+	}
+
+	_, found, err := ParseCustom(input, table)
+	require.Error(t, err)
 	require.Equal(t, false, found)
 }
 
