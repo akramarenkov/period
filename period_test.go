@@ -570,9 +570,9 @@ func TestParseRequireError(t *testing.T) {
 }
 
 func TestShiftTime(t *testing.T) {
-	period := Period{
-		years: 1,
-	}
+	period, found, err := Parse("1y")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
 
 	date := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)
 
@@ -588,7 +588,7 @@ func TestShiftTime(t *testing.T) {
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 	require.NotEqual(t, unexpectedDuration, period.RelativeDuration(date))
 
-	period, found, err := Parse("365d24h")
+	period, found, err = Parse("365d24h")
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
@@ -602,10 +602,9 @@ func TestShiftTime(t *testing.T) {
 }
 
 func TestShiftTimeNegative(t *testing.T) {
-	period := Period{
-		negative: true,
-		years:    1,
-	}
+	period, found, err := Parse("-1y")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
 
 	date := time.Date(2024, time.April, 1, 0, 0, 0, 0, time.UTC)
 
@@ -621,7 +620,7 @@ func TestShiftTimeNegative(t *testing.T) {
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 	require.NotEqual(t, unexpectedDuration, period.RelativeDuration(date))
 
-	period, found, err := Parse("-365d24h")
+	period, found, err = Parse("-365d24h")
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
@@ -664,12 +663,7 @@ func TestDurationImitation(t *testing.T) {
 	duration, err := time.ParseDuration(source)
 	require.NoError(t, err)
 
-	if period.negative {
-		require.Equal(t, duration, -period.duration)
-	} else {
-		require.Equal(t, duration, period.duration)
-	}
-
+	require.Equal(t, duration, period.Duration())
 	require.Equal(t, duration.String(), period.String())
 }
 
