@@ -45,54 +45,54 @@ const (
 	validUnitsQuantity = 9
 )
 
-type UnitsTable map[Unit][][]rune
+type UnitsTable map[Unit][]string
 
 var defaultUnits = UnitsTable{
 	UnitYear: {
-		[]rune("y"),
-		[]rune("year"),
-		[]rune("years"),
+		"y",
+		"year",
+		"years",
 	},
 	UnitMonth: {
-		[]rune("mo"),
-		[]rune("month"),
-		[]rune("months"),
+		"mo",
+		"month",
+		"months",
 	},
 	UnitDay: {
-		[]rune("d"),
-		[]rune("day"),
-		[]rune("days"),
+		"d",
+		"day",
+		"days",
 	},
 	UnitHour: {
-		[]rune("h"),
-		[]rune("hour"),
-		[]rune("hours"),
+		"h",
+		"hour",
+		"hours",
 	},
 	UnitMinute: {
-		[]rune("m"),
-		[]rune("minute"),
-		[]rune("minutes"),
+		"m",
+		"minute",
+		"minutes",
 	},
 	UnitSecond: {
-		[]rune("s"),
-		[]rune("second"),
-		[]rune("seconds"),
+		"s",
+		"second",
+		"seconds",
 	},
 	UnitMillisecond: {
-		[]rune("ms"),
-		[]rune("millisecond"),
-		[]rune("milliseconds"),
+		"ms",
+		"millisecond",
+		"milliseconds",
 	},
 	UnitMicrosecond: {
-		[]rune("us"),
-		[]rune("µs"),
-		[]rune("microsecond"),
-		[]rune("microseconds"),
+		"us",
+		"µs",
+		"microsecond",
+		"microseconds",
 	},
 	UnitNanosecond: {
-		[]rune("ns"),
-		[]rune("nanosecond"),
-		[]rune("nanoseconds"),
+		"ns",
+		"nanosecond",
+		"nanoseconds",
 	},
 }
 
@@ -284,40 +284,40 @@ func (prd Period) String() string {
 
 	if prd.years != 0 {
 		builder.WriteString(strconv.Itoa(prd.years))
-		builder.WriteString(string(prd.table[UnitYear][0]))
+		builder.WriteString(prd.table[UnitYear][0])
 	}
 
 	if prd.months != 0 {
 		builder.WriteString(strconv.Itoa(prd.months))
-		builder.WriteString(string(prd.table[UnitMonth][0]))
+		builder.WriteString(prd.table[UnitMonth][0])
 	}
 
 	if prd.days != 0 {
 		builder.WriteString(strconv.Itoa(prd.days))
-		builder.WriteString(string(prd.table[UnitDay][0]))
+		builder.WriteString(prd.table[UnitDay][0])
 	}
 
 	hours, minutes, seconds := prd.countHMS()
 
 	if hours != 0 {
-		builder.WriteString(strconv.Itoa(hours))
-		builder.WriteString(string(prd.table[UnitHour][0]))
+		builder.WriteString(strconv.FormatInt(hours, 10))
+		builder.WriteString(prd.table[UnitHour][0])
 	}
 
 	if minutes != 0 {
-		builder.WriteString(strconv.Itoa(minutes))
-		builder.WriteString(string(prd.table[UnitMinute][0]))
+		builder.WriteString(strconv.FormatInt(minutes, 10))
+		builder.WriteString(prd.table[UnitMinute][0])
 	}
 
 	if seconds != 0 || builder.Len() == 0 {
 		builder.WriteString(strconv.FormatFloat(seconds, 'f', -1, 64))
-		builder.WriteString(string(prd.table[UnitSecond][0]))
+		builder.WriteString(prd.table[UnitSecond][0])
 	}
 
 	return builder.String()
 }
 
-func (prd Period) countHMS() (int, int, float64) {
+func (prd Period) countHMS() (int64, int64, float64) {
 	remainder := prd.duration
 
 	hours := remainder / time.Hour
@@ -342,7 +342,7 @@ func (prd Period) countHMS() (int, int, float64) {
 	floated += float64(micro) * float64(time.Microsecond) / float64(time.Second)
 	floated += float64(nano) * float64(time.Nanosecond) / float64(time.Second)
 
-	return int(hours), int(minutes), floated
+	return int64(hours), int64(minutes), floated
 }
 
 func isNegative(input []rune) (bool, int, error) {
@@ -456,14 +456,16 @@ func findNumber(input []rune, table UnitsTable) ([]rune, int, bool, Unit, error)
 func findUnit(input []rune, table UnitsTable) (Unit, bool, int) {
 	for unit, modifiers := range table {
 		for _, modifier := range modifiers {
-			if !isModifierPossibleMatch(input, modifier) {
+			runed := []rune(modifier)
+
+			if !isModifierPossibleMatch(input, runed) {
 				continue
 			}
 
-			challenger := input[:len(modifier)]
+			challenger := input[:len(runed)]
 
-			if string(challenger) == string(modifier) {
-				return unit, true, len(modifier)
+			if string(challenger) == modifier {
+				return unit, true, len(runed)
 			}
 		}
 	}
@@ -494,7 +496,6 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 
 func IsValidUnitsTable(table UnitsTable) error {
 	unitsQuantity := 0
-
 	uniqueModifiers := make(map[string]struct{}, len(table))
 
 	for unit, modifiers := range table {
@@ -516,7 +517,7 @@ func IsValidUnitsTable(table UnitsTable) error {
 	return nil
 }
 
-func isValidModifiers(modifiers [][]rune, uniqs map[string]struct{}) error {
+func isValidModifiers(modifiers []string, uniqs map[string]struct{}) error {
 	if len(modifiers) == 0 {
 		return ErrMissingUnitModifier
 	}
@@ -526,13 +527,11 @@ func isValidModifiers(modifiers [][]rune, uniqs map[string]struct{}) error {
 			return ErrEmptyUnitModifier
 		}
 
-		stringed := string(modifier)
-
-		if _, exists := uniqs[stringed]; exists {
+		if _, exists := uniqs[modifier]; exists {
 			return ErrUnitModifierIsNotUnique
 		}
 
-		uniqs[stringed] = struct{}{}
+		uniqs[modifier] = struct{}{}
 	}
 
 	return nil
