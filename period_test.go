@@ -453,10 +453,111 @@ func TestIsValidUnitsTableMissingUnit(t *testing.T) {
 			"year",
 			"years",
 		},
+		UnitDay: {
+			"d",
+			"day",
+			"days",
+		},
+		UnitHour: {
+			"h",
+			"hour",
+			"hours",
+		},
+		UnitMinute: {
+			"m",
+			"minute",
+			"minutes",
+		},
+		UnitSecond: {
+			"s",
+			"second",
+			"seconds",
+		},
+		UnitMillisecond: {
+			"ms",
+			"millisecond",
+			"milliseconds",
+		},
+		UnitMicrosecond: {
+			"us",
+			"µs",
+			"microsecond",
+			"microseconds",
+		},
+		UnitNanosecond: {
+			"ns",
+			"nanosecond",
+			"nanoseconds",
+		},
+	}
+
+	require.Error(t, IsValidUnitsTable(table))
+}
+func TestIsValidUnitsTableMissingUnitModifier(t *testing.T) {
+	table := UnitsTable{
+		UnitYear: {
+			"y",
+			"year",
+			"years",
+		},
+		UnitMonth: {},
+		UnitDay: {
+			"d",
+			"day",
+			"days",
+		},
+		UnitHour: {
+			"h",
+			"hour",
+			"hours",
+		},
+		UnitMinute: {
+			"m",
+			"minute",
+			"minutes",
+		},
+		UnitSecond: {
+			"s",
+			"second",
+			"seconds",
+		},
+		UnitMillisecond: {
+			"ms",
+			"millisecond",
+			"milliseconds",
+		},
+		UnitMicrosecond: {
+			"us",
+			"µs",
+			"microsecond",
+			"microseconds",
+		},
+		UnitNanosecond: {
+			"ns",
+			"nanosecond",
+			"nanoseconds",
+		},
+	}
+
+	require.Error(t, IsValidUnitsTable(table))
+}
+
+func TestIsValidUnitsTableEmptyUnitModifier(t *testing.T) {
+	table := UnitsTable{
+		UnitYear: {
+			"y",
+			"year",
+			"years",
+		},
 		UnitMonth: {
-			"mo",
+			"",
 			"month",
 			"months",
+		},
+		UnitDay: {
+			"d",
+			"day",
+			"days",
 		},
 		UnitHour: {
 			"h",
@@ -510,108 +611,6 @@ func TestIsValidUnitsTableModifierIsNotUnique(t *testing.T) {
 			"d",
 			"day",
 			"days",
-		},
-		UnitHour: {
-			"h",
-			"hour",
-			"hours",
-		},
-		UnitMinute: {
-			"m",
-			"minute",
-			"minutes",
-		},
-		UnitSecond: {
-			"s",
-			"second",
-			"seconds",
-		},
-		UnitMillisecond: {
-			"ms",
-			"millisecond",
-			"milliseconds",
-		},
-		UnitMicrosecond: {
-			"us",
-			"µs",
-			"microsecond",
-			"microseconds",
-		},
-		UnitNanosecond: {
-			"ns",
-			"nanosecond",
-			"nanoseconds",
-		},
-	}
-
-	require.Error(t, IsValidUnitsTable(table))
-}
-
-func TestIsValidUnitsTableMissingUnitModifier1(t *testing.T) {
-	table := UnitsTable{
-		UnitYear: {
-			"y",
-			"year",
-			"years",
-		},
-		UnitMonth: {
-			"mo",
-			"month",
-			"months",
-		},
-		UnitDay: {},
-		UnitHour: {
-			"h",
-			"hour",
-			"hours",
-		},
-		UnitMinute: {
-			"m",
-			"minute",
-			"minutes",
-		},
-		UnitSecond: {
-			"s",
-			"second",
-			"seconds",
-		},
-		UnitMillisecond: {
-			"ms",
-			"millisecond",
-			"milliseconds",
-		},
-		UnitMicrosecond: {
-			"us",
-			"µs",
-			"microsecond",
-			"microseconds",
-		},
-		UnitNanosecond: {
-			"ns",
-			"nanosecond",
-			"nanoseconds",
-		},
-	}
-
-	require.Error(t, IsValidUnitsTable(table))
-}
-
-func TestIsValidUnitsTableEmptyUnitModifier(t *testing.T) {
-	table := UnitsTable{
-		UnitYear: {
-			"y",
-			"year",
-			"years",
-		},
-		UnitMonth: {
-			"mo",
-			"month",
-			"months",
-		},
-		UnitDay: {
-			"",
-			"month",
-			"months",
 		},
 		UnitHour: {
 			"h",
