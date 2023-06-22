@@ -454,8 +454,8 @@ func findNumber(input []rune, table UnitsTable) ([]rune, int, bool, Unit, error)
 }
 
 func findUnit(input []rune, table UnitsTable) (Unit, bool, int) {
-	for unit, list := range table {
-		for _, modifier := range list {
+	for unit, modifiers := range table {
+		for _, modifier := range modifiers {
 			if !isModifierPossibleMatch(input, modifier) {
 				continue
 			}
@@ -495,36 +495,44 @@ func isModifierPossibleMatch(input []rune, modifier []rune) bool {
 func IsValidUnitsTable(table UnitsTable) error {
 	unitsQuantity := 0
 
-	modifiers := map[string]struct{}{}
+	uniqueModifiers := make(map[string]struct{}, len(table))
 
-	for unit, list := range table {
+	for unit, modifiers := range table {
 		if err := isValidUnit(unit); err != nil {
 			return err
 		}
 
 		unitsQuantity++
 
-		if len(list) == 0 {
-			return ErrMissingUnitModifier
-		}
-
-		for _, modifier := range list {
-			if len(modifier) == 0 {
-				return ErrEmptyUnitModifier
-			}
-
-			stringed := string(modifier)
-
-			if _, exists := modifiers[stringed]; exists {
-				return ErrUnitModifierIsNotUnique
-			}
-
-			modifiers[stringed] = struct{}{}
+		if err := isValidModifiers(modifiers, uniqueModifiers); err != nil {
+			return err
 		}
 	}
 
 	if unitsQuantity != validUnitsQuantity {
 		return ErrMissingUnit
+	}
+
+	return nil
+}
+
+func isValidModifiers(modifiers [][]rune, uniqs map[string]struct{}) error {
+	if len(modifiers) == 0 {
+		return ErrMissingUnitModifier
+	}
+
+	for _, modifier := range modifiers {
+		if len(modifier) == 0 {
+			return ErrEmptyUnitModifier
+		}
+
+		stringed := string(modifier)
+
+		if _, exists := uniqs[stringed]; exists {
+			return ErrUnitModifierIsNotUnique
+		}
+
+		uniqs[stringed] = struct{}{}
 	}
 
 	return nil
