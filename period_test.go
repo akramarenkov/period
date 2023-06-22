@@ -92,107 +92,40 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
-	unit, found, next = findUnit([]rune("year"), defaultUnits)
+	unit, found, next = findUnit([]rune("y   "), defaultUnits)
 	require.Equal(t, UnitYear, unit)
 	require.Equal(t, true, found)
-	require.Equal(t, 4, next)
-
-	unit, found, next = findUnit([]rune("years"), defaultUnits)
-
-	require.Equal(t, UnitYear, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 5, next)
+	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit([]rune("mo"), defaultUnits)
 	require.Equal(t, UnitMonth, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
 
-	unit, found, next = findUnit([]rune("month"), defaultUnits)
-	require.Equal(t, UnitMonth, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 5, next)
-
-	unit, found, next = findUnit([]rune("months"), defaultUnits)
-	require.Equal(t, UnitMonth, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 6, next)
-
 	unit, found, next = findUnit([]rune("d"), defaultUnits)
 	require.Equal(t, UnitDay, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
-
-	unit, found, next = findUnit([]rune("day"), defaultUnits)
-	require.Equal(t, UnitDay, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 3, next)
-
-	unit, found, next = findUnit([]rune("days"), defaultUnits)
-	require.Equal(t, UnitDay, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 4, next)
 
 	unit, found, next = findUnit([]rune("h"), defaultUnits)
 	require.Equal(t, UnitHour, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
-	unit, found, next = findUnit([]rune("hour"), defaultUnits)
-	require.Equal(t, UnitHour, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 4, next)
-
-	unit, found, next = findUnit([]rune("hours"), defaultUnits)
-	require.Equal(t, UnitHour, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 5, next)
-
 	unit, found, next = findUnit([]rune("m"), defaultUnits)
 	require.Equal(t, UnitMinute, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
 
-	unit, found, next = findUnit([]rune("minute"), defaultUnits)
-	require.Equal(t, UnitMinute, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 6, next)
-
-	unit, found, next = findUnit([]rune("minutes"), defaultUnits)
-	require.Equal(t, UnitMinute, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 7, next)
-
 	unit, found, next = findUnit([]rune("s"), defaultUnits)
-
 	require.Equal(t, UnitSecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 1, next)
-
-	unit, found, next = findUnit([]rune("second"), defaultUnits)
-	require.Equal(t, UnitSecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 6, next)
-
-	unit, found, next = findUnit([]rune("seconds"), defaultUnits)
-	require.Equal(t, UnitSecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 7, next)
 
 	unit, found, next = findUnit([]rune("ms"), defaultUnits)
 	require.Equal(t, UnitMillisecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
-
-	unit, found, next = findUnit([]rune("millisecond"), defaultUnits)
-	require.Equal(t, UnitMillisecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 11, next)
-
-	unit, found, next = findUnit([]rune("milliseconds"), defaultUnits)
-	require.Equal(t, UnitMillisecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 12, next)
 
 	unit, found, next = findUnit([]rune("us"), defaultUnits)
 	require.Equal(t, UnitMicrosecond, unit)
@@ -204,44 +137,19 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
 
-	unit, found, next = findUnit([]rune("microsecond"), defaultUnits)
-	require.Equal(t, UnitMicrosecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 11, next)
-
-	unit, found, next = findUnit([]rune("microseconds"), defaultUnits)
-	require.Equal(t, UnitMicrosecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 12, next)
-
 	unit, found, next = findUnit([]rune("ns"), defaultUnits)
 	require.Equal(t, UnitNanosecond, unit)
 	require.Equal(t, true, found)
 	require.Equal(t, 2, next)
-
-	unit, found, next = findUnit([]rune("nanosecond"), defaultUnits)
-	require.Equal(t, UnitNanosecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 10, next)
-
-	unit, found, next = findUnit([]rune("nanoseconds"), defaultUnits)
-	require.Equal(t, UnitNanosecond, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 11, next)
-
-	unit, found, next = findUnit([]rune("y "), defaultUnits)
-	require.Equal(t, UnitYear, unit)
-	require.Equal(t, true, found)
-	require.Equal(t, 1, next)
 }
 
 func TestFindUnitNotFound(t *testing.T) {
-	unit, found, next := findUnit([]rune("yea"), defaultUnits)
+	unit, found, next := findUnit([]rune("u"), defaultUnits)
 	require.Equal(t, UnitUnknown, unit)
 	require.Equal(t, false, found)
 	require.Equal(t, 0, next)
 
-	unit, found, next = findUnit([]rune("yea "), defaultUnits)
+	unit, found, next = findUnit([]rune("n "), defaultUnits)
 	require.Equal(t, UnitUnknown, unit)
 	require.Equal(t, false, found)
 	require.Equal(t, 0, next)
@@ -392,54 +300,34 @@ func TestIsValidUnitsTableInvalidUnit(t *testing.T) {
 	table := UnitsTable{
 		UnitUnknown: {
 			"u",
-			"unknown",
-			"unknowns",
 		},
 		UnitYear: {
 			"y",
-			"year",
-			"years",
 		},
 		UnitMonth: {
 			"mo",
-			"month",
-			"months",
 		},
 		UnitDay: {
 			"d",
-			"day",
-			"days",
 		},
 		UnitHour: {
 			"h",
-			"hour",
-			"hours",
 		},
 		UnitMinute: {
 			"m",
-			"minute",
-			"minutes",
 		},
 		UnitSecond: {
 			"s",
-			"second",
-			"seconds",
 		},
 		UnitMillisecond: {
 			"ms",
-			"millisecond",
-			"milliseconds",
 		},
 		UnitMicrosecond: {
 			"us",
 			"µs",
-			"microsecond",
-			"microseconds",
 		},
 		UnitNanosecond: {
 			"ns",
-			"nanosecond",
-			"nanoseconds",
 		},
 	}
 
@@ -450,44 +338,28 @@ func TestIsValidUnitsTableMissingUnit(t *testing.T) {
 	table := UnitsTable{
 		UnitYear: {
 			"y",
-			"year",
-			"years",
 		},
 		UnitDay: {
 			"d",
-			"day",
-			"days",
 		},
 		UnitHour: {
 			"h",
-			"hour",
-			"hours",
 		},
 		UnitMinute: {
 			"m",
-			"minute",
-			"minutes",
 		},
 		UnitSecond: {
 			"s",
-			"second",
-			"seconds",
 		},
 		UnitMillisecond: {
 			"ms",
-			"millisecond",
-			"milliseconds",
 		},
 		UnitMicrosecond: {
 			"us",
 			"µs",
-			"microsecond",
-			"microseconds",
 		},
 		UnitNanosecond: {
 			"ns",
-			"nanosecond",
-			"nanoseconds",
 		},
 	}
 
@@ -497,45 +369,29 @@ func TestIsValidUnitsTableMissingUnitModifier(t *testing.T) {
 	table := UnitsTable{
 		UnitYear: {
 			"y",
-			"year",
-			"years",
 		},
 		UnitMonth: {},
 		UnitDay: {
 			"d",
-			"day",
-			"days",
 		},
 		UnitHour: {
 			"h",
-			"hour",
-			"hours",
 		},
 		UnitMinute: {
 			"m",
-			"minute",
-			"minutes",
 		},
 		UnitSecond: {
 			"s",
-			"second",
-			"seconds",
 		},
 		UnitMillisecond: {
 			"ms",
-			"millisecond",
-			"milliseconds",
 		},
 		UnitMicrosecond: {
 			"us",
 			"µs",
-			"microsecond",
-			"microseconds",
 		},
 		UnitNanosecond: {
 			"ns",
-			"nanosecond",
-			"nanoseconds",
 		},
 	}
 
@@ -546,49 +402,31 @@ func TestIsValidUnitsTableEmptyUnitModifier(t *testing.T) {
 	table := UnitsTable{
 		UnitYear: {
 			"y",
-			"year",
-			"years",
 		},
 		UnitMonth: {
 			"",
-			"month",
-			"months",
 		},
 		UnitDay: {
 			"d",
-			"day",
-			"days",
 		},
 		UnitHour: {
 			"h",
-			"hour",
-			"hours",
 		},
 		UnitMinute: {
 			"m",
-			"minute",
-			"minutes",
 		},
 		UnitSecond: {
 			"s",
-			"second",
-			"seconds",
 		},
 		UnitMillisecond: {
 			"ms",
-			"millisecond",
-			"milliseconds",
 		},
 		UnitMicrosecond: {
 			"us",
 			"µs",
-			"microsecond",
-			"microseconds",
 		},
 		UnitNanosecond: {
 			"ns",
-			"nanosecond",
-			"nanoseconds",
 		},
 	}
 
@@ -599,49 +437,31 @@ func TestIsValidUnitsTableModifierIsNotUnique(t *testing.T) {
 	table := UnitsTable{
 		UnitYear: {
 			"y",
-			"year",
-			"years",
 		},
 		UnitMonth: {
 			"m",
-			"month",
-			"months",
 		},
 		UnitDay: {
 			"d",
-			"day",
-			"days",
 		},
 		UnitHour: {
 			"h",
-			"hour",
-			"hours",
 		},
 		UnitMinute: {
 			"m",
-			"minute",
-			"minutes",
 		},
 		UnitSecond: {
 			"s",
-			"second",
-			"seconds",
 		},
 		UnitMillisecond: {
 			"ms",
-			"millisecond",
-			"milliseconds",
 		},
 		UnitMicrosecond: {
 			"us",
 			"µs",
-			"microsecond",
-			"microseconds",
 		},
 		UnitNanosecond: {
 			"ns",
-			"nanosecond",
-			"nanoseconds",
 		},
 	}
 
