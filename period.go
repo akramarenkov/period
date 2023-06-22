@@ -102,6 +102,10 @@ func ParseCustom(input string, table UnitsTable) (Period, bool, error) {
 	return parse(input, table)
 }
 
+func ParseCustomUnsafe(input string, table UnitsTable) (Period, bool, error) {
+	return parse(input, table)
+}
+
 func parse(input string, table UnitsTable) (Period, bool, error) {
 	runes := []rune(input)
 

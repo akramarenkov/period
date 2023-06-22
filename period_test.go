@@ -694,3 +694,81 @@ func TestDurationImitation(t *testing.T) {
 
 	require.Equal(t, duration.String(), period.String())
 }
+
+func BenchmarkParseString(b *testing.B) {
+	input := " - 3mo 10d 2y 23h59m58s10ms30µs10ns"
+	output := "-2y3mo10d23h59m58.01003001s"
+
+	expected := Period{
+		negative: true,
+
+		years:  2,
+		months: 3,
+		days:   10,
+
+		duration: 86398010030010,
+
+		table: defaultUnits,
+	}
+
+	for attempt := 0; attempt < 100000; attempt++ {
+		period, found, err := Parse(input)
+		require.NoError(b, err)
+		require.Equal(b, expected, period)
+		require.Equal(b, true, found)
+
+		require.Equal(b, output, period.String())
+	}
+}
+
+func BenchmarkParseCustomString(b *testing.B) {
+	input := " - 3mo 10d 2y 23h59m58s10ms30µs10ns"
+	output := "-2y3mo10d23h59m58.01003001s"
+
+	expected := Period{
+		negative: true,
+
+		years:  2,
+		months: 3,
+		days:   10,
+
+		duration: 86398010030010,
+
+		table: defaultUnits,
+	}
+
+	for attempt := 0; attempt < 100000; attempt++ {
+		period, found, err := ParseCustom(input, defaultUnits)
+		require.NoError(b, err)
+		require.Equal(b, expected, period)
+		require.Equal(b, true, found)
+
+		require.Equal(b, output, period.String())
+	}
+}
+
+func BenchmarkParseCustomUnsafeString(b *testing.B) {
+	input := " - 3mo 10d 2y 23h59m58s10ms30µs10ns"
+	output := "-2y3mo10d23h59m58.01003001s"
+
+	expected := Period{
+		negative: true,
+
+		years:  2,
+		months: 3,
+		days:   10,
+
+		duration: 86398010030010,
+
+		table: defaultUnits,
+	}
+
+	for attempt := 0; attempt < 100000; attempt++ {
+		period, found, err := ParseCustomUnsafe(input, defaultUnits)
+		require.NoError(b, err)
+		require.Equal(b, expected, period)
+		require.Equal(b, true, found)
+
+		require.Equal(b, output, period.String())
+	}
+}
