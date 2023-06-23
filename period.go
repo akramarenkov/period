@@ -188,17 +188,47 @@ func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
 
 	switch unit {
 	case UnitHour:
-		added = added * time.Hour
+		product, overflow := safeProductInt(added, time.Hour)
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = product
 	case UnitMinute:
-		added = added * time.Minute
+		product, overflow := safeProductInt(added, time.Minute)
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = product
 	case UnitSecond:
-		added = added * time.Second
+		product, overflow := safeProductInt(added, time.Second)
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = product
 	case UnitMillisecond:
-		added = added * time.Millisecond
+		product, overflow := safeProductInt(added, time.Millisecond)
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = product
 	case UnitMicrosecond:
-		added = added * time.Microsecond
+		product, overflow := safeProductInt(added, time.Microsecond)
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = product
 	case UnitNanosecond:
-		added = added * time.Nanosecond
+		product, overflow := safeProductInt(added, time.Nanosecond)
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = product
 	}
 
 	sum, overflow := safeSumInt(prd.duration, added)
