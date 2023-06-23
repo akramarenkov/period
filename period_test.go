@@ -703,7 +703,16 @@ func TestParseOverflow(t *testing.T) {
 	_, _, err = Parse("2562047h2837s")
 	require.Error(t, err)
 
-	_, _, err = Parse("2562047.1h2836s")
+	_, _, err = Parse("2562046.5h30.5m2837.5s")
+	require.Error(t, err)
+
+	_, _, err = Parse("9223372036854775808y")
+	require.Error(t, err)
+
+	_, _, err = Parse("9223372036854775808mo")
+	require.Error(t, err)
+
+	_, _, err = Parse("9223372036854775808d")
 	require.Error(t, err)
 }
 
