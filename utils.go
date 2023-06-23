@@ -4,7 +4,7 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-func safeSum[Type constraints.Integer](first Type, second Type) (Type, bool) {
+func safeSumInt[Type constraints.Integer](first Type, second Type) (Type, bool) {
 	var zero Type
 
 	sum := first + second
@@ -23,7 +23,7 @@ func safeSum[Type constraints.Integer](first Type, second Type) (Type, bool) {
 	return sum, false
 }
 
-func safeProduct[Type constraints.Integer](first Type, second Type) (Type, bool) {
+func safeProductInt[Type constraints.Integer](first Type, second Type) (Type, bool) {
 	var zero Type
 
 	if second == zero {

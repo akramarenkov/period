@@ -7,209 +7,209 @@ import (
 )
 
 func TestSafeSumInt8(t *testing.T) {
-	sum, overflow := safeSum[int8](0, 0)
+	sum, overflow := safeSumInt[int8](0, 0)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](126, 0)
+	sum, overflow = safeSumInt[int8](126, 0)
 	require.Equal(t, int8(126), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](0, 126)
+	sum, overflow = safeSumInt[int8](0, 126)
 	require.Equal(t, int8(126), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](126, 1)
+	sum, overflow = safeSumInt[int8](126, 1)
 	require.Equal(t, int8(127), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](1, 126)
+	sum, overflow = safeSumInt[int8](1, 126)
 	require.Equal(t, int8(127), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](-127, 0)
+	sum, overflow = safeSumInt[int8](-127, 0)
 	require.Equal(t, int8(-127), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](0, -127)
+	sum, overflow = safeSumInt[int8](0, -127)
 	require.Equal(t, int8(-127), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](-127, -1)
+	sum, overflow = safeSumInt[int8](-127, -1)
 	require.Equal(t, int8(-128), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[int8](-1, -127)
+	sum, overflow = safeSumInt[int8](-1, -127)
 	require.Equal(t, int8(-128), sum)
 	require.Equal(t, false, overflow)
 }
 
 func TestSafeSumOverflowInt8(t *testing.T) {
-	sum, overflow := safeSum[int8](127, 1)
+	sum, overflow := safeSumInt[int8](127, 1)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](1, 127)
+	sum, overflow = safeSumInt[int8](1, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](127, 2)
+	sum, overflow = safeSumInt[int8](127, 2)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](2, 127)
+	sum, overflow = safeSumInt[int8](2, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](127, 3)
+	sum, overflow = safeSumInt[int8](127, 3)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](3, 127)
+	sum, overflow = safeSumInt[int8](3, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](127, 125)
+	sum, overflow = safeSumInt[int8](127, 125)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](125, 127)
+	sum, overflow = safeSumInt[int8](125, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](127, 126)
+	sum, overflow = safeSumInt[int8](127, 126)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](126, 127)
+	sum, overflow = safeSumInt[int8](126, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](127, 127)
+	sum, overflow = safeSumInt[int8](127, 127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-128, -1)
+	sum, overflow = safeSumInt[int8](-128, -1)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-1, -128)
+	sum, overflow = safeSumInt[int8](-1, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-128, -2)
+	sum, overflow = safeSumInt[int8](-128, -2)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-2, -128)
+	sum, overflow = safeSumInt[int8](-2, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-128, -3)
+	sum, overflow = safeSumInt[int8](-128, -3)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-3, -128)
+	sum, overflow = safeSumInt[int8](-3, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-128, -126)
+	sum, overflow = safeSumInt[int8](-128, -126)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-126, -128)
+	sum, overflow = safeSumInt[int8](-126, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-128, -127)
+	sum, overflow = safeSumInt[int8](-128, -127)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-127, -128)
+	sum, overflow = safeSumInt[int8](-127, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[int8](-128, -128)
+	sum, overflow = safeSumInt[int8](-128, -128)
 	require.Equal(t, int8(0), sum)
 	require.Equal(t, true, overflow)
 }
 
 func TestSafeSumUint8(t *testing.T) {
-	sum, overflow := safeSum[uint8](0, 0)
+	sum, overflow := safeSumInt[uint8](0, 0)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[uint8](254, 0)
+	sum, overflow = safeSumInt[uint8](254, 0)
 	require.Equal(t, uint8(254), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[uint8](0, 254)
+	sum, overflow = safeSumInt[uint8](0, 254)
 	require.Equal(t, uint8(254), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[uint8](254, 1)
+	sum, overflow = safeSumInt[uint8](254, 1)
 	require.Equal(t, uint8(255), sum)
 	require.Equal(t, false, overflow)
 
-	sum, overflow = safeSum[uint8](1, 254)
+	sum, overflow = safeSumInt[uint8](1, 254)
 	require.Equal(t, uint8(255), sum)
 	require.Equal(t, false, overflow)
 }
 
 func TestSafeSumOverflowUint8(t *testing.T) {
-	sum, overflow := safeSum[uint8](255, 1)
+	sum, overflow := safeSumInt[uint8](255, 1)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](1, 255)
+	sum, overflow = safeSumInt[uint8](1, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](255, 2)
+	sum, overflow = safeSumInt[uint8](255, 2)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](2, 255)
+	sum, overflow = safeSumInt[uint8](2, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](255, 3)
+	sum, overflow = safeSumInt[uint8](255, 3)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](3, 255)
+	sum, overflow = safeSumInt[uint8](3, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](255, 253)
+	sum, overflow = safeSumInt[uint8](255, 253)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](253, 255)
+	sum, overflow = safeSumInt[uint8](253, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](255, 254)
+	sum, overflow = safeSumInt[uint8](255, 254)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](254, 255)
+	sum, overflow = safeSumInt[uint8](254, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](255, 255)
+	sum, overflow = safeSumInt[uint8](255, 255)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](128, 128)
+	sum, overflow = safeSumInt[uint8](128, 128)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](127, 129)
+	sum, overflow = safeSumInt[uint8](127, 129)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 
-	sum, overflow = safeSum[uint8](129, 127)
+	sum, overflow = safeSumInt[uint8](129, 127)
 	require.Equal(t, uint8(0), sum)
 	require.Equal(t, true, overflow)
 }
@@ -236,189 +236,189 @@ func TestIsMaxNegative(t *testing.T) {
 }
 
 func TestSafeProductInt8(t *testing.T) {
-	product, overflow := safeProduct[int8](0, 0)
+	product, overflow := safeProductInt[int8](0, 0)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](2, 0)
+	product, overflow = safeProductInt[int8](2, 0)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](0, 2)
+	product, overflow = safeProductInt[int8](0, 2)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](3, 0)
+	product, overflow = safeProductInt[int8](3, 0)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](0, 3)
+	product, overflow = safeProductInt[int8](0, 3)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-2, 0)
+	product, overflow = safeProductInt[int8](-2, 0)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](0, -2)
+	product, overflow = safeProductInt[int8](0, -2)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-3, 0)
+	product, overflow = safeProductInt[int8](-3, 0)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](0, -3)
+	product, overflow = safeProductInt[int8](0, -3)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](2, 3)
+	product, overflow = safeProductInt[int8](2, 3)
 	require.Equal(t, int8(6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](3, 2)
+	product, overflow = safeProductInt[int8](3, 2)
 	require.Equal(t, int8(6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-2, 3)
+	product, overflow = safeProductInt[int8](-2, 3)
 	require.Equal(t, int8(-6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](3, -2)
+	product, overflow = safeProductInt[int8](3, -2)
 	require.Equal(t, int8(-6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](2, -3)
+	product, overflow = safeProductInt[int8](2, -3)
 	require.Equal(t, int8(-6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-3, 2)
+	product, overflow = safeProductInt[int8](-3, 2)
 	require.Equal(t, int8(-6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-2, -3)
+	product, overflow = safeProductInt[int8](-2, -3)
 	require.Equal(t, int8(6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-3, -2)
+	product, overflow = safeProductInt[int8](-3, -2)
 	require.Equal(t, int8(6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-127, -1)
+	product, overflow = safeProductInt[int8](-127, -1)
 	require.Equal(t, int8(127), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-1, -127)
+	product, overflow = safeProductInt[int8](-1, -127)
 	require.Equal(t, int8(127), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-127, 1)
+	product, overflow = safeProductInt[int8](-127, 1)
 	require.Equal(t, int8(-127), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](1, -127)
+	product, overflow = safeProductInt[int8](1, -127)
 	require.Equal(t, int8(-127), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](127, -1)
+	product, overflow = safeProductInt[int8](127, -1)
 	require.Equal(t, int8(-127), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-1, 127)
+	product, overflow = safeProductInt[int8](-1, 127)
 	require.Equal(t, int8(-127), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](-128, 1)
+	product, overflow = safeProductInt[int8](-128, 1)
 	require.Equal(t, int8(-128), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[int8](1, -128)
+	product, overflow = safeProductInt[int8](1, -128)
 	require.Equal(t, int8(-128), product)
 	require.Equal(t, false, overflow)
 }
 
 func TestSafeProductOverflowInt8(t *testing.T) {
-	product, overflow := safeProduct[int8](-127, -2)
+	product, overflow := safeProductInt[int8](-127, -2)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, true, overflow)
 
-	product, overflow = safeProduct[int8](-2, -127)
+	product, overflow = safeProductInt[int8](-2, -127)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, true, overflow)
 
-	product, overflow = safeProduct[int8](-128, -1)
+	product, overflow = safeProductInt[int8](-128, -1)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, true, overflow)
 
-	product, overflow = safeProduct[int8](-1, -128)
+	product, overflow = safeProductInt[int8](-1, -128)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, true, overflow)
 
-	product, overflow = safeProduct[int8](-128, -128)
+	product, overflow = safeProductInt[int8](-128, -128)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, true, overflow)
 }
 
 func TestSafeProductUint8(t *testing.T) {
-	product, overflow := safeProduct[uint8](0, 0)
+	product, overflow := safeProductInt[uint8](0, 0)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](2, 0)
+	product, overflow = safeProductInt[uint8](2, 0)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](0, 2)
+	product, overflow = safeProductInt[uint8](0, 2)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](3, 0)
+	product, overflow = safeProductInt[uint8](3, 0)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](0, 3)
+	product, overflow = safeProductInt[uint8](0, 3)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](3, 2)
+	product, overflow = safeProductInt[uint8](3, 2)
 	require.Equal(t, uint8(6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](2, 3)
+	product, overflow = safeProductInt[uint8](2, 3)
 	require.Equal(t, uint8(6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](85, 3)
+	product, overflow = safeProductInt[uint8](85, 3)
 	require.Equal(t, uint8(255), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](3, 85)
+	product, overflow = safeProductInt[uint8](3, 85)
 	require.Equal(t, uint8(255), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](255, 1)
+	product, overflow = safeProductInt[uint8](255, 1)
 	require.Equal(t, uint8(255), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProduct[uint8](1, 255)
+	product, overflow = safeProductInt[uint8](1, 255)
 	require.Equal(t, uint8(255), product)
 	require.Equal(t, false, overflow)
 }
 
 func TestSafeProductOverflowUint8(t *testing.T) {
-	product, overflow := safeProduct[uint8](255, 2)
+	product, overflow := safeProductInt[uint8](255, 2)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, true, overflow)
 
-	product, overflow = safeProduct[uint8](2, 255)
+	product, overflow = safeProductInt[uint8](2, 255)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, true, overflow)
 
-	product, overflow = safeProduct[uint8](128, 2)
+	product, overflow = safeProductInt[uint8](128, 2)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, true, overflow)
 
-	product, overflow = safeProduct[uint8](2, 128)
+	product, overflow = safeProductInt[uint8](2, 128)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, true, overflow)
 }
