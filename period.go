@@ -180,51 +180,11 @@ func (prd Period) parseHMSNumber(number string, unit Unit) (Period, error) {
 }
 
 func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
-	added := time.Duration(parsed)
+	dimension := getDimension(unit)
 
-	switch unit {
-	case UnitHour:
-		product, overflow := safeProductInt(added, time.Hour)
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = product
-	case UnitMinute:
-		product, overflow := safeProductInt(added, time.Minute)
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = product
-	case UnitSecond:
-		product, overflow := safeProductInt(added, time.Second)
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = product
-	case UnitMillisecond:
-		product, overflow := safeProductInt(added, time.Millisecond)
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = product
-	case UnitMicrosecond:
-		product, overflow := safeProductInt(added, time.Microsecond)
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = product
-	case UnitNanosecond:
-		product, overflow := safeProductInt(added, time.Nanosecond)
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = product
+	added, overflow := safeProductInt(time.Duration(parsed), dimension)
+	if overflow {
+		return Period{}, ErrDurationOverflow
 	}
 
 	sum, overflow := safeSumInt(prd.duration, added)
@@ -238,69 +198,14 @@ func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
 }
 
 func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
-	var added time.Duration
+	dimension := getDimension(unit)
 
-	switch unit {
-	case UnitHour:
-		converted, overflow := safeFloatToInt[float64, time.Duration](
-			parsed * float64(time.Hour),
-		)
+	added, overflow := safeFloatToInt[float64, time.Duration](
+		parsed * float64(dimension),
+	)
 
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = converted
-	case UnitMinute:
-		converted, overflow := safeFloatToInt[float64, time.Duration](
-			parsed * float64(time.Minute),
-		)
-
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = converted
-	case UnitSecond:
-		converted, overflow := safeFloatToInt[float64, time.Duration](
-			parsed * float64(time.Second),
-		)
-
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = converted
-	case UnitMillisecond:
-		converted, overflow := safeFloatToInt[float64, time.Duration](
-			parsed * float64(time.Millisecond),
-		)
-
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = converted
-	case UnitMicrosecond:
-		converted, overflow := safeFloatToInt[float64, time.Duration](
-			parsed * float64(time.Microsecond),
-		)
-
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = converted
-	case UnitNanosecond:
-		converted, overflow := safeFloatToInt[float64, time.Duration](
-			parsed * float64(time.Nanosecond),
-		)
-
-		if overflow {
-			return Period{}, ErrDurationOverflow
-		}
-
-		added = converted
+	if overflow {
+		return Period{}, ErrDurationOverflow
 	}
 
 	sum, overflow := safeSumInt(prd.duration, added)
@@ -647,4 +552,23 @@ func isYMDUnit(unit Unit) bool {
 	}
 
 	return true
+}
+
+func getDimension(unit Unit) time.Duration {
+	switch unit {
+	case UnitHour:
+		return time.Hour
+	case UnitMinute:
+		return time.Minute
+	case UnitSecond:
+		return time.Second
+	case UnitMillisecond:
+		return time.Millisecond
+	case UnitMicrosecond:
+		return time.Microsecond
+	case UnitNanosecond:
+		return time.Nanosecond
+	}
+
+	return time.Nanosecond
 }
