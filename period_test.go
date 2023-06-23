@@ -660,6 +660,20 @@ func TestParseRequireError(t *testing.T) {
 	require.Equal(t, false, found)
 }
 
+func TestParseOverflow(t *testing.T) {
+	_, _, err := Parse("9223372036854775807ns")
+	require.NoError(t, err)
+
+	_, _, err = Parse("9223372036854775808ns")
+	require.Error(t, err)
+
+	_, _, err = Parse("1us9223372036854775807ns")
+	require.Error(t, err)
+
+	_, _, err = Parse("1ms9223372036854775807ns")
+	require.Error(t, err)
+}
+
 func TestShiftTime(t *testing.T) {
 	period, found, err := Parse("1y")
 	require.NoError(t, err)

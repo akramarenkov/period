@@ -542,18 +542,6 @@ func isValidUnit(unit Unit) error {
 	return nil
 }
 
-func isYMDUnit(unit Unit) bool {
-	switch unit {
-	case UnitYear:
-	case UnitMonth:
-	case UnitDay:
-	default:
-		return false
-	}
-
-	return true
-}
-
 func getDimension(unit Unit) time.Duration {
 	switch unit {
 	case UnitHour:
@@ -566,9 +554,19 @@ func getDimension(unit Unit) time.Duration {
 		return time.Millisecond
 	case UnitMicrosecond:
 		return time.Microsecond
-	case UnitNanosecond:
-		return time.Nanosecond
 	}
 
 	return time.Nanosecond
+}
+
+func isYMDUnit(unit Unit) bool {
+	switch unit {
+	case UnitYear:
+	case UnitMonth:
+	case UnitDay:
+	default:
+		return false
+	}
+
+	return true
 }
