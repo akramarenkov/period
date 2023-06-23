@@ -242,17 +242,65 @@ func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
 
 	switch unit {
 	case UnitHour:
-		added = time.Duration(parsed * float64(time.Hour))
+		converted, overflow := safeFloatToInt[float64, time.Duration](
+			parsed * float64(time.Hour),
+		)
+
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = converted
 	case UnitMinute:
-		added = time.Duration(parsed * float64(time.Minute))
+		converted, overflow := safeFloatToInt[float64, time.Duration](
+			parsed * float64(time.Minute),
+		)
+
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = converted
 	case UnitSecond:
-		added = time.Duration(parsed * float64(time.Second))
+		converted, overflow := safeFloatToInt[float64, time.Duration](
+			parsed * float64(time.Second),
+		)
+
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = converted
 	case UnitMillisecond:
-		added = time.Duration(parsed * float64(time.Millisecond))
+		converted, overflow := safeFloatToInt[float64, time.Duration](
+			parsed * float64(time.Millisecond),
+		)
+
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = converted
 	case UnitMicrosecond:
-		added = time.Duration(parsed * float64(time.Microsecond))
+		converted, overflow := safeFloatToInt[float64, time.Duration](
+			parsed * float64(time.Microsecond),
+		)
+
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = converted
 	case UnitNanosecond:
-		added = time.Duration(parsed * float64(time.Nanosecond))
+		converted, overflow := safeFloatToInt[float64, time.Duration](
+			parsed * float64(time.Nanosecond),
+		)
+
+		if overflow {
+			return Period{}, ErrDurationOverflow
+		}
+
+		added = converted
 	}
 
 	sum, overflow := safeSumInt(prd.duration, added)
