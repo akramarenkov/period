@@ -167,8 +167,7 @@ func (prd Period) parseYMDNumber(number string, unit Unit) (Period, error) {
 }
 
 func (prd Period) parseHMSNumber(number string, unit Unit) (Period, error) {
-	updated, err := prd.parseHMSIntNumber(number, unit)
-	if err == nil {
+	if updated, err := prd.parseHMSIntNumber(number, unit); err == nil {
 		return updated, nil
 	}
 
@@ -176,7 +175,7 @@ func (prd Period) parseHMSNumber(number string, unit Unit) (Period, error) {
 }
 
 func (prd Period) parseHMSIntNumber(number string, unit Unit) (Period, error) {
-	parsed, err := strconv.Atoi(number)
+	parsed, err := strconv.ParseInt(number, 10, 64)
 	if err != nil {
 		return Period{}, err
 	}
@@ -184,7 +183,7 @@ func (prd Period) parseHMSIntNumber(number string, unit Unit) (Period, error) {
 	return prd.addInt(parsed, unit)
 }
 
-func (prd Period) addInt(parsed int, unit Unit) (Period, error) {
+func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
 	added := time.Duration(parsed)
 
 	switch unit {
@@ -202,7 +201,7 @@ func (prd Period) addInt(parsed int, unit Unit) (Period, error) {
 		added = added * time.Nanosecond
 	}
 
-	sum, overflow := safeSum(prd.duration, added)
+	sum, overflow := safeSumInt(prd.duration, added)
 	if overflow {
 		return Period{}, ErrDurationOverflow
 	}
@@ -239,7 +238,7 @@ func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
 		added = time.Duration(parsed * float64(time.Nanosecond))
 	}
 
-	sum, overflow := safeSum(prd.duration, added)
+	sum, overflow := safeSumInt(prd.duration, added)
 	if overflow {
 		return Period{}, ErrDurationOverflow
 	}
@@ -535,7 +534,7 @@ func IsValidUnitsTable(table UnitsTable) error {
 	return nil
 }
 
-func isValidModifiers(modifiers []string, uniqs map[string]struct{}) error {
+func isValidModifiers(modifiers []string, uniqueModifiers map[string]struct{}) error {
 	if len(modifiers) == 0 {
 		return ErrMissingUnitModifier
 	}
@@ -545,11 +544,11 @@ func isValidModifiers(modifiers []string, uniqs map[string]struct{}) error {
 			return ErrEmptyUnitModifier
 		}
 
-		if _, exists := uniqs[modifier]; exists {
+		if _, exists := uniqueModifiers[modifier]; exists {
 			return ErrUnitModifierIsNotUnique
 		}
 
-		uniqs[modifier] = struct{}{}
+		uniqueModifiers[modifier] = struct{}{}
 	}
 
 	return nil

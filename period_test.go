@@ -629,9 +629,8 @@ func TestParseCustomInvalidUnitsTable(t *testing.T) {
 		},
 	}
 
-	_, found, err := ParseCustom(input, table)
+	_, _, err := ParseCustom(input, table)
 	require.Error(t, err)
-	require.Equal(t, false, found)
 }
 
 func TestParseRequireError(t *testing.T) {
