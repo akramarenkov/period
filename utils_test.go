@@ -304,19 +304,11 @@ func TestSafeProductInt8(t *testing.T) {
 	require.Equal(t, int8(6), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProductInt[int8](-127, -1)
-	require.Equal(t, int8(127), product)
-	require.Equal(t, false, overflow)
-
-	product, overflow = safeProductInt[int8](-1, -127)
-	require.Equal(t, int8(127), product)
-	require.Equal(t, false, overflow)
-
-	product, overflow = safeProductInt[int8](-127, 1)
+	product, overflow = safeProductInt[int8](1, -127)
 	require.Equal(t, int8(-127), product)
 	require.Equal(t, false, overflow)
 
-	product, overflow = safeProductInt[int8](1, -127)
+	product, overflow = safeProductInt[int8](-127, 1)
 	require.Equal(t, int8(-127), product)
 	require.Equal(t, false, overflow)
 
@@ -326,6 +318,14 @@ func TestSafeProductInt8(t *testing.T) {
 
 	product, overflow = safeProductInt[int8](-1, 127)
 	require.Equal(t, int8(-127), product)
+	require.Equal(t, false, overflow)
+
+	product, overflow = safeProductInt[int8](-127, -1)
+	require.Equal(t, int8(127), product)
+	require.Equal(t, false, overflow)
+
+	product, overflow = safeProductInt[int8](-1, -127)
+	require.Equal(t, int8(127), product)
 	require.Equal(t, false, overflow)
 
 	product, overflow = safeProductInt[int8](-128, 1)
@@ -338,11 +338,59 @@ func TestSafeProductInt8(t *testing.T) {
 }
 
 func TestSafeProductOverflowInt8(t *testing.T) {
-	product, overflow := safeProductInt[int8](-127, -2)
+	product, overflow := safeProductInt[int8](127, 2)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](2, 127)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](64, 2)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](2, 64)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](127, 127)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](-127, 2)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](2, -127)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](-2, 127)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](127, -2)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](-127, -2)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, true, overflow)
 
 	product, overflow = safeProductInt[int8](-2, -127)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](127, -127)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](-127, 127)
+	require.Equal(t, int8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[int8](-127, -127)
 	require.Equal(t, int8(0), product)
 	require.Equal(t, true, overflow)
 
@@ -419,6 +467,34 @@ func TestSafeProductOverflowUint8(t *testing.T) {
 	require.Equal(t, true, overflow)
 
 	product, overflow = safeProductInt[uint8](2, 128)
+	require.Equal(t, uint8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[uint8](86, 3)
+	require.Equal(t, uint8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[uint8](3, 86)
+	require.Equal(t, uint8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[uint8](64, 4)
+	require.Equal(t, uint8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[uint8](4, 64)
+	require.Equal(t, uint8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[uint8](255, 254)
+	require.Equal(t, uint8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[uint8](254, 255)
+	require.Equal(t, uint8(0), product)
+	require.Equal(t, true, overflow)
+
+	product, overflow = safeProductInt[uint8](255, 255)
 	require.Equal(t, uint8(0), product)
 	require.Equal(t, true, overflow)
 }
