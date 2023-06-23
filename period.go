@@ -22,6 +22,7 @@ var (
 	ErrMissingUnit             = errors.New("missing unit")
 	ErrMissingUnitModifier     = errors.New("unit modifier is missing")
 	ErrNumberUnitIsNotUnique   = errors.New("named number unit is not unique")
+	ErrUnexpectedNumberFormat  = errors.New("unexpected number format")
 	ErrUnexpectedSymbol        = errors.New("unexpected symbol")
 	ErrUnitModifierIsNotUnique = errors.New("unit modifier is not unique")
 )
@@ -167,20 +168,15 @@ func (prd Period) parseYMDNumber(number string, unit Unit) (Period, error) {
 }
 
 func (prd Period) parseHMSNumber(number string, unit Unit) (Period, error) {
-	if updated, err := prd.parseHMSIntNumber(number, unit); err == nil {
-		return updated, nil
+	if integer, err := strconv.ParseInt(number, 10, 64); err == nil {
+		return prd.addInt(integer, unit)
 	}
 
-	return prd.parseHMSFloatNumber(number, unit)
-}
-
-func (prd Period) parseHMSIntNumber(number string, unit Unit) (Period, error) {
-	parsed, err := strconv.ParseInt(number, 10, 64)
-	if err != nil {
-		return Period{}, err
+	if float, err := strconv.ParseFloat(number, 64); err == nil {
+		return prd.addFloat(float, unit)
 	}
 
-	return prd.addInt(parsed, unit)
+	return Period{}, ErrUnexpectedNumberFormat
 }
 
 func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
@@ -239,15 +235,6 @@ func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
 	prd.duration = sum
 
 	return prd, nil
-}
-
-func (prd Period) parseHMSFloatNumber(number string, unit Unit) (Period, error) {
-	parsed, err := strconv.ParseFloat(number, 64)
-	if err != nil {
-		return Period{}, err
-	}
-
-	return prd.addFloat(parsed, unit)
 }
 
 func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
@@ -384,12 +371,12 @@ func (prd Period) countHMS() (int64, int64, float64) {
 
 	nano := remainder
 
-	floated := float64(seconds)
-	floated += float64(milli) * float64(time.Millisecond) / float64(time.Second)
-	floated += float64(micro) * float64(time.Microsecond) / float64(time.Second)
-	floated += float64(nano) * float64(time.Nanosecond) / float64(time.Second)
+	float := float64(seconds)
+	float += float64(milli) * float64(time.Millisecond) / float64(time.Second)
+	float += float64(micro) * float64(time.Microsecond) / float64(time.Second)
+	float += float64(nano) * float64(time.Nanosecond) / float64(time.Second)
 
-	return int64(hours), int64(minutes), floated
+	return int64(hours), int64(minutes), float
 }
 
 func isNegative(input []rune) (bool, int, error) {
