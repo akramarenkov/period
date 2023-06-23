@@ -54,3 +54,42 @@ func isMaxNegative[Type constraints.Integer](number Type) bool {
 
 	return number >= zero
 }
+
+func isMaxPositive[Type constraints.Integer](number Type) bool {
+	var zero Type
+
+	if number <= zero {
+		return false
+	}
+
+	number++
+
+	return number <= zero
+}
+
+func safeFloatToInt[Float constraints.Float, Integer constraints.Integer](
+	float Float,
+) (Integer, bool) {
+	var zero Integer
+
+	converted := Integer(float)
+	reverted := Float(converted)
+
+	if reverted > float && isMaxNegative(converted) {
+		return zero, true
+	}
+
+	if reverted < float && isMaxPositive(converted) {
+		return zero, true
+	}
+
+	if reverted > float+1 {
+		return zero, true
+	}
+
+	if reverted < float-1 {
+		return zero, true
+	}
+
+	return converted, false
+}
