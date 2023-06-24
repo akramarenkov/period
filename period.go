@@ -49,6 +49,10 @@ const (
 	validUnitsQuantity = 9
 )
 
+// Units table for custom parsing and converting to string.
+//
+// Must contains all Unit constants (except UnitUnknown) and
+// at least one modifier for each unit of measure
 type UnitsTable map[Unit][]string
 
 var defaultUnits = UnitsTable{
