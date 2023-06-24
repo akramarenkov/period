@@ -36,7 +36,9 @@ func main() {
         return
     }
 
-    fmt.Println(period, period.ShiftTime(time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)))
+    fmt.Println(period)
+    fmt.Println(period.ShiftTime(time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)))
     // Output: 2y3mo10d23h59m58.01003001s 2025-07-11 23:59:58.01003001 +0000 UTC
+    // 2025-07-11 23:59:58.01003001 +0000 UTC
 }
 ```
