@@ -931,6 +931,52 @@ func TestSetNegative(t *testing.T) {
 	require.Equal(t, "-2y0.00000001s", period.String())
 }
 
+func TestNewPeriod(t *testing.T) {
+	period := New()
+	require.Equal(t, "0s", period.String())
+
+	period, err := NewCustom(defaultUnits)
+	require.NoError(t, err)
+	require.Equal(t, "0s", period.String())
+
+	period = NewCustomUnsafe(defaultUnits)
+	require.NoError(t, err)
+	require.Equal(t, "0s", period.String())
+}
+
+func TestNewPeriodCustomInvalidUnitsTable(t *testing.T) {
+	table := UnitsTable{
+		UnitYear: {
+			"y",
+		},
+		UnitDay: {
+			"d",
+		},
+		UnitHour: {
+			"h",
+		},
+		UnitMinute: {
+			"m",
+		},
+		UnitSecond: {
+			"s",
+		},
+		UnitMillisecond: {
+			"ms",
+		},
+		UnitMicrosecond: {
+			"us",
+			"µs",
+		},
+		UnitNanosecond: {
+			"ns",
+		},
+	}
+
+	_, err := NewCustom(table)
+	require.Error(t, err)
+}
+
 func benchmarkParseString(b *testing.B, name string) {
 	input := " - 3mo 10d 2y 23h59m58s10ms30µs10ns"
 	output := "-2y3mo10d23h59m58.01003001s"

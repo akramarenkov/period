@@ -91,6 +91,30 @@ type Period struct {
 	table UnitsTable
 }
 
+func newPeriod(table UnitsTable) Period {
+	prd := Period{
+		table: table,
+	}
+
+	return prd
+}
+
+func New() Period {
+	return newPeriod(defaultUnits)
+}
+
+func NewCustom(table UnitsTable) (Period, error) {
+	if err := IsValidUnitsTable(table); err != nil {
+		return Period{}, err
+	}
+
+	return newPeriod(table), nil
+}
+
+func NewCustomUnsafe(table UnitsTable) Period {
+	return newPeriod(table)
+}
+
 func Parse(input string) (Period, bool, error) {
 	return parse(input, defaultUnits)
 }
