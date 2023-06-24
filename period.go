@@ -234,6 +234,11 @@ func (prd Period) IsNegative() bool {
 	return prd.negative
 }
 
+func (prd Period) SetNegative(negative bool) Period {
+	prd.negative = negative
+	return prd
+}
+
 func (prd Period) Years() int {
 	if prd.negative {
 		return -prd.years
@@ -306,21 +311,33 @@ func (prd Period) AddDate(years int, months int, days int) (Period, error) {
 	return prd, nil
 }
 
-func (prd Period) AddDuration(duration time.Duration) (Period, error) {
+func (prd Period) sumDuration(
+	original time.Duration,
+	added time.Duration,
+) (time.Duration, error) {
 	if prd.negative {
-		if isMaxNegative(duration) {
-			return Period{}, ErrValueOverflow
+		if isMaxNegative(added) {
+			return 0, ErrValueOverflow
 		}
 
-		duration = -duration
+		added = -added
 	}
 
-	sumDuration, overflow := safeSumInt(prd.duration, duration)
+	sum, overflow := safeSumInt(original, added)
 	if overflow {
-		return Period{}, ErrValueOverflow
+		return 0, ErrValueOverflow
 	}
 
-	prd.duration = sumDuration
+	return sum, nil
+}
+
+func (prd Period) AddDuration(duration time.Duration) (Period, error) {
+	sum, err := prd.sumDuration(prd.duration, duration)
+	if err != nil {
+		return Period{}, err
+	}
+
+	prd.duration = sum
 
 	return prd, nil
 }

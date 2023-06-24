@@ -919,6 +919,18 @@ func TestAddDurationRequireError(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestSetNegative(t *testing.T) {
+	period, found, err := Parse("2y10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, false, period.IsNegative())
+	require.Equal(t, "2y0.00000001s", period.String())
+
+	period = period.SetNegative(true)
+	require.Equal(t, true, period.IsNegative())
+	require.Equal(t, "-2y0.00000001s", period.String())
+}
+
 func benchmarkParseString(b *testing.B, name string) {
 	input := " - 3mo 10d 2y 23h59m58s10ms30µs10ns"
 	output := "-2y3mo10d23h59m58.01003001s"
