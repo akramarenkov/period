@@ -925,6 +925,102 @@ func TestSetNegative(t *testing.T) {
 	require.Equal(t, "-2y0.00000001s", period.String())
 }
 
+func TestSetYears(t *testing.T) {
+	period, found, err := Parse("2y10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, 2, period.Years())
+	require.Equal(t, "2y0.00000001s", period.String())
+
+	require.NoError(t, period.SetYears(5))
+	require.Equal(t, 5, period.Years())
+	require.Equal(t, "5y0.00000001s", period.String())
+
+	require.Error(t, period.SetYears(-5))
+}
+
+func TestSetYearsNegative(t *testing.T) {
+	period, found, err := Parse("-2y10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, -2, period.Years())
+	require.Equal(t, "-2y0.00000001s", period.String())
+
+	require.NoError(t, period.SetYears(-5))
+	require.Equal(t, -5, period.Years())
+	require.Equal(t, "-5y0.00000001s", period.String())
+
+	require.Error(t, period.SetYears(5))
+	require.Error(t, period.SetYears(math.MinInt))
+
+	require.NoError(t, period.SetYears(math.MinInt+1))
+	require.Equal(t, math.MinInt+1, period.Years())
+}
+
+func TestSetMonths(t *testing.T) {
+	period, found, err := Parse("2mo10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, 2, period.Months())
+	require.Equal(t, "2mo0.00000001s", period.String())
+
+	require.NoError(t, period.SetMonths(5))
+	require.Equal(t, 5, period.Months())
+	require.Equal(t, "5mo0.00000001s", period.String())
+
+	require.Error(t, period.SetMonths(-5))
+}
+
+func TestSetMonthsNegative(t *testing.T) {
+	period, found, err := Parse("-2mo10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, -2, period.Months())
+	require.Equal(t, "-2mo0.00000001s", period.String())
+
+	require.NoError(t, period.SetMonths(-5))
+	require.Equal(t, -5, period.Months())
+	require.Equal(t, "-5mo0.00000001s", period.String())
+
+	require.Error(t, period.SetMonths(5))
+	require.Error(t, period.SetMonths(math.MinInt))
+
+	require.NoError(t, period.SetMonths(math.MinInt+1))
+	require.Equal(t, math.MinInt+1, period.Months())
+}
+
+func TestSetDays(t *testing.T) {
+	period, found, err := Parse("2d10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, 2, period.Days())
+	require.Equal(t, "2d0.00000001s", period.String())
+
+	require.NoError(t, period.SetDays(5))
+	require.Equal(t, 5, period.Days())
+	require.Equal(t, "5d0.00000001s", period.String())
+
+	require.Error(t, period.SetDays(-5))
+}
+
+func TestSetDaysNegative(t *testing.T) {
+	period, found, err := Parse("-2d10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, -2, period.Days())
+	require.Equal(t, "-2d0.00000001s", period.String())
+
+	require.NoError(t, period.SetDays(-5))
+	require.Equal(t, -5, period.Days())
+	require.Equal(t, "-5d0.00000001s", period.String())
+
+	require.Error(t, period.SetDays(5))
+	require.Error(t, period.SetDays(math.MinInt))
+
+	require.NoError(t, period.SetDays(math.MinInt+1))
+	require.Equal(t, math.MinInt+1, period.Days())
+}
+
 func TestNewPeriod(t *testing.T) {
 	period := New()
 	require.Equal(t, "0s", period.String())

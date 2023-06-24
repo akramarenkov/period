@@ -270,6 +270,17 @@ func (prd Period) Years() int {
 	return prd.years
 }
 
+func (prd *Period) SetYears(years int) error {
+	years, err := prd.normalizeYMD(years)
+	if err != nil {
+		return err
+	}
+
+	prd.years = years
+
+	return nil
+}
+
 func (prd Period) Months() int {
 	if prd.negative {
 		return -prd.months
@@ -278,12 +289,34 @@ func (prd Period) Months() int {
 	return prd.months
 }
 
+func (prd *Period) SetMonths(months int) error {
+	months, err := prd.normalizeYMD(months)
+	if err != nil {
+		return err
+	}
+
+	prd.months = months
+
+	return nil
+}
+
 func (prd Period) Days() int {
 	if prd.negative {
 		return -prd.days
 	}
 
 	return prd.days
+}
+
+func (prd *Period) SetDays(days int) error {
+	days, err := prd.normalizeYMD(days)
+	if err != nil {
+		return err
+	}
+
+	prd.days = days
+
+	return nil
 }
 
 func (prd Period) Duration() time.Duration {
@@ -309,6 +342,26 @@ func (prd Period) sumYMD(original int, added int) (int, error) {
 	}
 
 	return sum, nil
+}
+
+func (prd Period) normalizeYMD(value int) (int, error) {
+	if value < 0 && !prd.negative {
+		return 0, ErrValueOverflow
+	}
+
+	if value > 0 && prd.negative {
+		return 0, ErrValueOverflow
+	}
+
+	if value < 0 {
+		if isMaxNegative(value) {
+			return 0, ErrValueOverflow
+		}
+
+		return -value, nil
+	}
+
+	return value, nil
 }
 
 func (prd *Period) AddDate(years int, months int, days int) error {
