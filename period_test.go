@@ -1021,6 +1021,38 @@ func TestSetDaysNegative(t *testing.T) {
 	require.Equal(t, math.MinInt+1, period.Days())
 }
 
+func TestSetDuration(t *testing.T) {
+	period, found, err := Parse("2d10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, time.Duration(10), period.Duration())
+	require.Equal(t, "2d0.00000001s", period.String())
+
+	require.NoError(t, period.SetDuration(5))
+	require.Equal(t, time.Duration(5), period.Duration())
+	require.Equal(t, "2d0.000000005s", period.String())
+
+	require.Error(t, period.SetDuration(-5))
+}
+
+func TestSetDurationNegative(t *testing.T) {
+	period, found, err := Parse("-2d10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+	require.Equal(t, time.Duration(-10), period.Duration())
+	require.Equal(t, "-2d0.00000001s", period.String())
+
+	require.NoError(t, period.SetDuration(-5))
+	require.Equal(t, time.Duration(-5), period.Duration())
+	require.Equal(t, "-2d0.000000005s", period.String())
+
+	require.Error(t, period.SetDuration(5))
+	require.Error(t, period.SetDuration(math.MinInt64))
+
+	require.NoError(t, period.SetDuration(math.MinInt64+1))
+	require.Equal(t, time.Duration(math.MinInt64+1), period.Duration())
+}
+
 func TestNewPeriod(t *testing.T) {
 	period := New()
 	require.Equal(t, "0s", period.String())

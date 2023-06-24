@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"golang.org/x/exp/constraints"
 )
 
 const (
@@ -22,6 +24,7 @@ var (
 	ErrMissingUnitModifier     = errors.New("unit modifier is missing")
 	ErrNumberUnitIsNotUnique   = errors.New("named number unit is not unique")
 	ErrUnexpectedNumberFormat  = errors.New("unexpected number format")
+	ErrUnexpectedNumberSign    = errors.New("unexpected number sign")
 	ErrUnexpectedSymbol        = errors.New("unexpected symbol")
 	ErrUnitModifierIsNotUnique = errors.New("unit modifier is not unique")
 	ErrValueOverflow           = errors.New("value overflow")
@@ -91,14 +94,6 @@ type Period struct {
 	table UnitsTable
 }
 
-func newPeriod(table UnitsTable) Period {
-	prd := Period{
-		table: table,
-	}
-
-	return prd
-}
-
 func New() Period {
 	return newPeriod(defaultUnits)
 }
@@ -113,6 +108,14 @@ func NewCustom(table UnitsTable) (Period, error) {
 
 func NewCustomUnsafe(table UnitsTable) Period {
 	return newPeriod(table)
+}
+
+func newPeriod(table UnitsTable) Period {
+	prd := Period{
+		table: table,
+	}
+
+	return prd
 }
 
 func Parse(input string) (Period, bool, error) {
@@ -271,7 +274,7 @@ func (prd Period) Years() int {
 }
 
 func (prd *Period) SetYears(years int) error {
-	years, err := prd.normalizeYMD(years)
+	years, err := normalizeSettableValue(prd.negative, years)
 	if err != nil {
 		return err
 	}
@@ -290,7 +293,7 @@ func (prd Period) Months() int {
 }
 
 func (prd *Period) SetMonths(months int) error {
-	months, err := prd.normalizeYMD(months)
+	months, err := normalizeSettableValue(prd.negative, months)
 	if err != nil {
 		return err
 	}
@@ -309,7 +312,7 @@ func (prd Period) Days() int {
 }
 
 func (prd *Period) SetDays(days int) error {
-	days, err := prd.normalizeYMD(days)
+	days, err := normalizeSettableValue(prd.negative, days)
 	if err != nil {
 		return err
 	}
@@ -327,30 +330,27 @@ func (prd Period) Duration() time.Duration {
 	return prd.duration
 }
 
-func (prd Period) sumYMD(original int, added int) (int, error) {
-	if prd.negative {
-		if isMaxNegative(added) {
-			return 0, ErrValueOverflow
-		}
-
-		added = -added
+func (prd *Period) SetDuration(duration time.Duration) error {
+	duration, err := normalizeSettableValue(prd.negative, duration)
+	if err != nil {
+		return err
 	}
 
-	sum, overflow := safeSumInt(original, added)
-	if overflow {
-		return 0, ErrValueOverflow
-	}
+	prd.duration = duration
 
-	return sum, nil
+	return nil
 }
 
-func (prd Period) normalizeYMD(value int) (int, error) {
-	if value < 0 && !prd.negative {
-		return 0, ErrValueOverflow
+func normalizeSettableValue[Type constraints.Integer](
+	negative bool,
+	value Type,
+) (Type, error) {
+	if value < 0 && !negative {
+		return 0, ErrUnexpectedNumberSign
 	}
 
-	if value > 0 && prd.negative {
-		return 0, ErrValueOverflow
+	if value > 0 && negative {
+		return 0, ErrUnexpectedNumberSign
 	}
 
 	if value < 0 {
@@ -365,17 +365,17 @@ func (prd Period) normalizeYMD(value int) (int, error) {
 }
 
 func (prd *Period) AddDate(years int, months int, days int) error {
-	sumYears, err := prd.sumYMD(prd.years, years)
+	sumYears, err := addValue(prd.negative, prd.years, years)
 	if err != nil {
 		return err
 	}
 
-	sumMonths, err := prd.sumYMD(prd.months, months)
+	sumMonths, err := addValue(prd.negative, prd.months, months)
 	if err != nil {
 		return err
 	}
 
-	sumDays, err := prd.sumYMD(prd.days, days)
+	sumDays, err := addValue(prd.negative, prd.days, days)
 	if err != nil {
 		return err
 	}
@@ -387,11 +387,23 @@ func (prd *Period) AddDate(years int, months int, days int) error {
 	return nil
 }
 
-func (prd Period) sumDuration(
-	original time.Duration,
-	added time.Duration,
-) (time.Duration, error) {
-	if prd.negative {
+func (prd *Period) AddDuration(duration time.Duration) error {
+	sum, err := addValue(prd.negative, prd.duration, duration)
+	if err != nil {
+		return err
+	}
+
+	prd.duration = sum
+
+	return nil
+}
+
+func addValue[Type constraints.Integer](
+	negative bool,
+	original Type,
+	added Type,
+) (Type, error) {
+	if negative {
 		if isMaxNegative(added) {
 			return 0, ErrValueOverflow
 		}
@@ -405,17 +417,6 @@ func (prd Period) sumDuration(
 	}
 
 	return sum, nil
-}
-
-func (prd *Period) AddDuration(duration time.Duration) error {
-	sum, err := prd.sumDuration(prd.duration, duration)
-	if err != nil {
-		return err
-	}
-
-	prd.duration = sum
-
-	return nil
 }
 
 func (prd Period) String() string {
