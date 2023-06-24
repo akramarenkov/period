@@ -258,9 +258,8 @@ func (prd Period) IsNegative() bool {
 	return prd.negative
 }
 
-func (prd Period) SetNegative(negative bool) Period {
+func (prd *Period) SetNegative(negative bool) {
 	prd.negative = negative
-	return prd
 }
 
 func (prd Period) Years() int {
@@ -312,27 +311,27 @@ func (prd Period) sumYMD(original int, added int) (int, error) {
 	return sum, nil
 }
 
-func (prd Period) AddDate(years int, months int, days int) (Period, error) {
+func (prd *Period) AddDate(years int, months int, days int) error {
 	sumYears, err := prd.sumYMD(prd.years, years)
 	if err != nil {
-		return Period{}, err
+		return err
 	}
 
 	sumMonths, err := prd.sumYMD(prd.months, months)
 	if err != nil {
-		return Period{}, err
+		return err
 	}
 
 	sumDays, err := prd.sumYMD(prd.days, days)
 	if err != nil {
-		return Period{}, err
+		return err
 	}
 
 	prd.years = sumYears
 	prd.months = sumMonths
 	prd.days = sumDays
 
-	return prd, nil
+	return nil
 }
 
 func (prd Period) sumDuration(
@@ -355,15 +354,15 @@ func (prd Period) sumDuration(
 	return sum, nil
 }
 
-func (prd Period) AddDuration(duration time.Duration) (Period, error) {
+func (prd *Period) AddDuration(duration time.Duration) error {
 	sum, err := prd.sumDuration(prd.duration, duration)
 	if err != nil {
-		return Period{}, err
+		return err
 	}
 
 	prd.duration = sum
 
-	return prd, nil
+	return nil
 }
 
 func (prd Period) String() string {

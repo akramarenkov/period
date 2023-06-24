@@ -824,37 +824,43 @@ func TestDurationImitation(t *testing.T) {
 }
 
 func TestAddDate(t *testing.T) {
+	period, found, err := Parse("2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	years := period.Years()
+	months := period.Months()
+	days := period.Days()
+
+	require.NoError(t, period.AddDate(1, 10, 100))
+	require.Equal(t, years+1, period.Years())
+	require.Equal(t, months+10, period.Months())
+	require.Equal(t, days+100, period.Days())
+
+	require.NoError(t, period.AddDate(-1, -10, -100))
+	require.Equal(t, years, period.Years())
+	require.Equal(t, months, period.Months())
+	require.Equal(t, days, period.Days())
+}
+
+func TestAddDateNegative(t *testing.T) {
 	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 
-	updated, err := period.AddDate(1, 10, 100)
-	require.NoError(t, err)
-	require.Equal(t, period.Years()+1, updated.Years())
-	require.Equal(t, period.Months()+10, updated.Months())
-	require.Equal(t, period.Days()+100, updated.Days())
+	years := period.Years()
+	months := period.Months()
+	days := period.Days()
 
-	updated, err = period.AddDate(-1, -10, -100)
-	require.NoError(t, err)
-	require.Equal(t, period.Years()-1, updated.Years())
-	require.Equal(t, period.Months()-10, updated.Months())
-	require.Equal(t, period.Days()-100, updated.Days())
+	require.NoError(t, period.AddDate(1, 10, 100))
+	require.Equal(t, years+1, period.Years())
+	require.Equal(t, months+10, period.Months())
+	require.Equal(t, days+100, period.Days())
 
-	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
-	require.NoError(t, err)
-	require.Equal(t, true, found)
-
-	updated, err = period.AddDate(1, 10, 100)
-	require.NoError(t, err)
-	require.Equal(t, period.Years()+1, updated.Years())
-	require.Equal(t, period.Months()+10, updated.Months())
-	require.Equal(t, period.Days()+100, updated.Days())
-
-	updated, err = period.AddDate(-1, -10, -100)
-	require.NoError(t, err)
-	require.Equal(t, period.Years()-1, updated.Years())
-	require.Equal(t, period.Months()-10, updated.Months())
-	require.Equal(t, period.Days()-100, updated.Days())
+	require.NoError(t, period.AddDate(-1, -10, -100))
+	require.Equal(t, years, period.Years())
+	require.Equal(t, months, period.Months())
+	require.Equal(t, days, period.Days())
 }
 
 func TestAddDateRequireError(t *testing.T) {
@@ -862,49 +868,40 @@ func TestAddDateRequireError(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 
-	_, err = period.AddDate(math.MinInt, 0, 0)
-	require.Error(t, err)
-
-	_, err = period.AddDate(math.MinInt+1, 0, 0)
-	require.Error(t, err)
-
-	_, err = period.AddDate(0, math.MinInt, 0)
-	require.Error(t, err)
-
-	_, err = period.AddDate(0, math.MinInt+1, 0)
-	require.Error(t, err)
-
-	_, err = period.AddDate(0, 0, math.MinInt)
-	require.Error(t, err)
-
-	_, err = period.AddDate(0, 0, math.MinInt+1)
-	require.Error(t, err)
+	require.Error(t, period.AddDate(math.MinInt, 0, 0))
+	require.Error(t, period.AddDate(math.MinInt+1, 0, 0))
+	require.Error(t, period.AddDate(0, math.MinInt, 0))
+	require.Error(t, period.AddDate(0, math.MinInt+1, 0))
+	require.Error(t, period.AddDate(0, 0, math.MinInt))
+	require.Error(t, period.AddDate(0, 0, math.MinInt+1))
 }
 
 func TestAddDuration(t *testing.T) {
+	period, found, err := Parse("2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	duration := period.Duration()
+
+	require.NoError(t, period.AddDuration(1*time.Hour))
+	require.Equal(t, duration+1*time.Hour, period.Duration())
+
+	require.NoError(t, period.AddDuration(-1*time.Hour))
+	require.Equal(t, duration, period.Duration())
+}
+
+func TestAddDurationNegative(t *testing.T) {
 	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 
-	updated, err := period.AddDuration(1 * time.Hour)
-	require.NoError(t, err)
-	require.Equal(t, period.Duration()+1*time.Hour, updated.Duration())
+	duration := period.Duration()
 
-	updated, err = period.AddDuration(-1 * time.Hour)
-	require.NoError(t, err)
-	require.Equal(t, period.Duration()-1*time.Hour, updated.Duration())
+	require.NoError(t, period.AddDuration(1*time.Hour))
+	require.Equal(t, duration+1*time.Hour, period.Duration())
 
-	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
-	require.NoError(t, err)
-	require.Equal(t, true, found)
-
-	updated, err = period.AddDuration(1 * time.Hour)
-	require.NoError(t, err)
-	require.Equal(t, period.Duration()+1*time.Hour, updated.Duration())
-
-	updated, err = period.AddDuration(-1 * time.Hour)
-	require.NoError(t, err)
-	require.Equal(t, period.Duration()-1*time.Hour, updated.Duration())
+	require.NoError(t, period.AddDuration(-1*time.Hour))
+	require.Equal(t, duration, period.Duration())
 }
 
 func TestAddDurationRequireError(t *testing.T) {
@@ -912,11 +909,8 @@ func TestAddDurationRequireError(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 
-	_, err = period.AddDuration(math.MinInt64)
-	require.Error(t, err)
-
-	_, err = period.AddDuration(math.MinInt64 + 1)
-	require.Error(t, err)
+	require.Error(t, period.AddDuration(math.MinInt64))
+	require.Error(t, period.AddDuration(math.MinInt64+1))
 }
 
 func TestSetNegative(t *testing.T) {
@@ -926,7 +920,7 @@ func TestSetNegative(t *testing.T) {
 	require.Equal(t, false, period.IsNegative())
 	require.Equal(t, "2y0.00000001s", period.String())
 
-	period = period.SetNegative(true)
+	period.SetNegative(true)
 	require.Equal(t, true, period.IsNegative())
 	require.Equal(t, "-2y0.00000001s", period.String())
 }
@@ -940,7 +934,6 @@ func TestNewPeriod(t *testing.T) {
 	require.Equal(t, "0s", period.String())
 
 	period = NewCustomUnsafe(defaultUnits)
-	require.NoError(t, err)
 	require.Equal(t, "0s", period.String())
 }
 
