@@ -1,6 +1,7 @@
 package period
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -477,6 +478,7 @@ func TestParse(t *testing.T) {
 	require.Equal(t, 2, period.Years())
 	require.Equal(t, 3, period.Months())
 	require.Equal(t, 10, period.Days())
+	require.Equal(t, false, period.IsNegative())
 	require.Equal(t, time.Duration(86398010030010), period.Duration())
 
 	period, found, err = Parse(" 3mo 10d 2y 23h59m58s10ms30us10ns")
@@ -486,6 +488,7 @@ func TestParse(t *testing.T) {
 	require.Equal(t, 2, period.Years())
 	require.Equal(t, 3, period.Months())
 	require.Equal(t, 10, period.Days())
+	require.Equal(t, false, period.IsNegative())
 	require.Equal(t, time.Duration(86398010030010), period.Duration())
 
 	duration, err := time.ParseDuration("23h59m58s10ms30us10ns")
@@ -499,6 +502,7 @@ func TestParse(t *testing.T) {
 	require.Equal(t, 2, period.Years())
 	require.Equal(t, 3, period.Months())
 	require.Equal(t, 10, period.Days())
+	require.Equal(t, false, period.IsNegative())
 	require.Equal(t, time.Duration(86398010030010), period.Duration())
 
 	duration, err = time.ParseDuration("23h59m58s10ms30µs10ns")
@@ -514,6 +518,7 @@ func TestParseNegative(t *testing.T) {
 	require.Equal(t, -2, period.Years())
 	require.Equal(t, -3, period.Months())
 	require.Equal(t, -10, period.Days())
+	require.Equal(t, true, period.IsNegative())
 	require.Equal(t, time.Duration(-86398010030010), period.Duration())
 
 	period, found, err = Parse(" - 3mo 10d 2y 23h59m58s10ms30us10ns")
@@ -523,6 +528,7 @@ func TestParseNegative(t *testing.T) {
 	require.Equal(t, -2, period.Years())
 	require.Equal(t, -3, period.Months())
 	require.Equal(t, -10, period.Days())
+	require.Equal(t, true, period.IsNegative())
 	require.Equal(t, time.Duration(-86398010030010), period.Duration())
 
 	duration, err := time.ParseDuration("-23h59m58s10ms30us10ns")
@@ -536,6 +542,7 @@ func TestParseNegative(t *testing.T) {
 	require.Equal(t, -2, period.Years())
 	require.Equal(t, -3, period.Months())
 	require.Equal(t, -10, period.Days())
+	require.Equal(t, true, period.IsNegative())
 	require.Equal(t, time.Duration(-86398010030010), period.Duration())
 
 	duration, err = time.ParseDuration("-23h59m58s10ms30µs10ns")
@@ -551,6 +558,7 @@ func TestParseOver(t *testing.T) {
 	require.Equal(t, -2, period.Years())
 	require.Equal(t, -3, period.Months())
 	require.Equal(t, -10, period.Days())
+	require.Equal(t, true, period.IsNegative())
 	require.Equal(t, time.Duration(-191941010030000), period.Duration())
 
 	period, found, err = Parse(" - 3mo 10d 2y 52h78m61s10ms30us")
@@ -560,6 +568,7 @@ func TestParseOver(t *testing.T) {
 	require.Equal(t, -2, period.Years())
 	require.Equal(t, -3, period.Months())
 	require.Equal(t, -10, period.Days())
+	require.Equal(t, true, period.IsNegative())
 	require.Equal(t, time.Duration(-191941010030000), period.Duration())
 
 	duration, err := time.ParseDuration("-52h78m61s10ms30us")
@@ -812,6 +821,102 @@ func TestDurationImitation(t *testing.T) {
 
 	require.Equal(t, duration, period.Duration())
 	require.Equal(t, duration.String(), period.String())
+}
+
+func TestAddDate(t *testing.T) {
+	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	updated, err := period.AddDate(1, 1, 1)
+	require.NoError(t, err)
+	require.Equal(t, period.Years()+1, updated.Years())
+	require.Equal(t, period.Months()+1, updated.Months())
+	require.Equal(t, period.Days()+1, updated.Days())
+
+	updated, err = period.AddDate(-1, -1, -1)
+	require.NoError(t, err)
+	require.Equal(t, period.Years()-1, updated.Years())
+	require.Equal(t, period.Months()-1, updated.Months())
+	require.Equal(t, period.Days()-1, updated.Days())
+
+	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	updated, err = period.AddDate(1, 1, 1)
+	require.NoError(t, err)
+	require.Equal(t, period.Years()+1, updated.Years())
+	require.Equal(t, period.Months()+1, updated.Months())
+	require.Equal(t, period.Days()+1, updated.Days())
+
+	updated, err = period.AddDate(-1, -1, -1)
+	require.NoError(t, err)
+	require.Equal(t, period.Years()-1, updated.Years())
+	require.Equal(t, period.Months()-1, updated.Months())
+	require.Equal(t, period.Days()-1, updated.Days())
+}
+
+func TestAddDateRequireError(t *testing.T) {
+	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	_, err = period.AddDate(math.MinInt, 0, 0)
+	require.Error(t, err)
+
+	_, err = period.AddDate(math.MinInt+1, 0, 0)
+	require.Error(t, err)
+
+	_, err = period.AddDate(0, math.MinInt, 0)
+	require.Error(t, err)
+
+	_, err = period.AddDate(0, math.MinInt+1, 0)
+	require.Error(t, err)
+
+	_, err = period.AddDate(0, 0, math.MinInt)
+	require.Error(t, err)
+
+	_, err = period.AddDate(0, 0, math.MinInt+1)
+	require.Error(t, err)
+}
+
+func TestAddDuration(t *testing.T) {
+	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	updated, err := period.AddDuration(1 * time.Hour)
+	require.NoError(t, err)
+	require.Equal(t, period.Duration()+1*time.Hour, updated.Duration())
+
+	updated, err = period.AddDuration(-1 * time.Hour)
+	require.NoError(t, err)
+	require.Equal(t, period.Duration()-1*time.Hour, updated.Duration())
+
+	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	updated, err = period.AddDuration(1 * time.Hour)
+	require.NoError(t, err)
+	require.Equal(t, period.Duration()+1*time.Hour, updated.Duration())
+
+	updated, err = period.AddDuration(-1 * time.Hour)
+	require.NoError(t, err)
+	require.Equal(t, period.Duration()-1*time.Hour, updated.Duration())
+}
+
+func TestAddDurationRequireError(t *testing.T) {
+	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	_, err = period.AddDuration(math.MinInt64)
+	require.Error(t, err)
+
+	_, err = period.AddDuration(math.MinInt64 + 1)
+	require.Error(t, err)
 }
 
 func benchmarkParseString(b *testing.B, name string) {

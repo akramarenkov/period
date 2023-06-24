@@ -14,7 +14,6 @@ const (
 )
 
 var (
-	ErrDurationOverflow        = errors.New("duration value overflow")
 	ErrEmptyUnitModifier       = errors.New("unit modifier is empty")
 	ErrIncompleteNumber        = errors.New("incomplete named number")
 	ErrInvalidExpression       = errors.New("invalid expression")
@@ -25,6 +24,7 @@ var (
 	ErrUnexpectedNumberFormat  = errors.New("unexpected number format")
 	ErrUnexpectedSymbol        = errors.New("unexpected symbol")
 	ErrUnitModifierIsNotUnique = errors.New("unit modifier is not unique")
+	ErrValueOverflow           = errors.New("value overflow")
 )
 
 type Unit int
@@ -184,12 +184,12 @@ func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
 
 	added, overflow := safeProductInt(time.Duration(parsed), dimension)
 	if overflow {
-		return Period{}, ErrDurationOverflow
+		return Period{}, ErrValueOverflow
 	}
 
 	sum, overflow := safeSumInt(prd.duration, added)
 	if overflow {
-		return Period{}, ErrDurationOverflow
+		return Period{}, ErrValueOverflow
 	}
 
 	prd.duration = sum
@@ -205,12 +205,12 @@ func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
 	)
 
 	if overflow {
-		return Period{}, ErrDurationOverflow
+		return Period{}, ErrValueOverflow
 	}
 
 	sum, overflow := safeSumInt(prd.duration, added)
 	if overflow {
-		return Period{}, ErrDurationOverflow
+		return Period{}, ErrValueOverflow
 	}
 
 	prd.duration = sum
@@ -228,6 +228,10 @@ func (prd Period) ShiftTime(base time.Time) time.Time {
 
 func (prd Period) RelativeDuration(base time.Time) time.Duration {
 	return prd.ShiftTime(base).Sub(base)
+}
+
+func (prd Period) IsNegative() bool {
+	return prd.negative
 }
 
 func (prd Period) Years() int {
@@ -260,6 +264,72 @@ func (prd Period) Duration() time.Duration {
 	}
 
 	return prd.duration
+}
+
+func (prd Period) AddDate(years int, months int, days int) (Period, error) {
+	if prd.negative {
+		if isMaxNegative(years) {
+			return Period{}, ErrValueOverflow
+		}
+
+		years = -years
+	}
+
+	if prd.negative {
+		if isMaxNegative(months) {
+			return Period{}, ErrValueOverflow
+		}
+
+		months = -months
+	}
+
+	if prd.negative {
+		if isMaxNegative(days) {
+			return Period{}, ErrValueOverflow
+		}
+
+		days = -days
+	}
+
+	sumYears, overflow := safeSumInt(prd.years, years)
+	if overflow {
+		return Period{}, ErrValueOverflow
+	}
+
+	sumMonths, overflow := safeSumInt(prd.months, months)
+	if overflow {
+		return Period{}, ErrValueOverflow
+	}
+
+	sumDays, overflow := safeSumInt(prd.days, days)
+	if overflow {
+		return Period{}, ErrValueOverflow
+	}
+
+	prd.years = sumYears
+	prd.months = sumMonths
+	prd.days = sumDays
+
+	return prd, nil
+}
+
+func (prd Period) AddDuration(duration time.Duration) (Period, error) {
+	if prd.negative {
+		if isMaxNegative(duration) {
+			return Period{}, ErrValueOverflow
+		}
+
+		duration = -duration
+	}
+
+	sumDuration, overflow := safeSumInt(prd.duration, duration)
+	if overflow {
+		return Period{}, ErrValueOverflow
+	}
+
+	prd.duration = sumDuration
+
+	return prd, nil
 }
 
 func (prd Period) String() string {
