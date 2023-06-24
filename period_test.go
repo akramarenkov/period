@@ -828,33 +828,33 @@ func TestAddDate(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 
-	updated, err := period.AddDate(1, 1, 1)
+	updated, err := period.AddDate(1, 10, 100)
 	require.NoError(t, err)
 	require.Equal(t, period.Years()+1, updated.Years())
-	require.Equal(t, period.Months()+1, updated.Months())
-	require.Equal(t, period.Days()+1, updated.Days())
+	require.Equal(t, period.Months()+10, updated.Months())
+	require.Equal(t, period.Days()+100, updated.Days())
 
-	updated, err = period.AddDate(-1, -1, -1)
+	updated, err = period.AddDate(-1, -10, -100)
 	require.NoError(t, err)
 	require.Equal(t, period.Years()-1, updated.Years())
-	require.Equal(t, period.Months()-1, updated.Months())
-	require.Equal(t, period.Days()-1, updated.Days())
+	require.Equal(t, period.Months()-10, updated.Months())
+	require.Equal(t, period.Days()-100, updated.Days())
 
 	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
 	require.Equal(t, true, found)
 
-	updated, err = period.AddDate(1, 1, 1)
+	updated, err = period.AddDate(1, 10, 100)
 	require.NoError(t, err)
 	require.Equal(t, period.Years()+1, updated.Years())
-	require.Equal(t, period.Months()+1, updated.Months())
-	require.Equal(t, period.Days()+1, updated.Days())
+	require.Equal(t, period.Months()+10, updated.Months())
+	require.Equal(t, period.Days()+100, updated.Days())
 
-	updated, err = period.AddDate(-1, -1, -1)
+	updated, err = period.AddDate(-1, -10, -100)
 	require.NoError(t, err)
 	require.Equal(t, period.Years()-1, updated.Years())
-	require.Equal(t, period.Months()-1, updated.Months())
-	require.Equal(t, period.Days()-1, updated.Days())
+	require.Equal(t, period.Months()-10, updated.Months())
+	require.Equal(t, period.Days()-100, updated.Days())
 }
 
 func TestAddDateRequireError(t *testing.T) {

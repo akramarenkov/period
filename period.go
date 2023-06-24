@@ -266,44 +266,37 @@ func (prd Period) Duration() time.Duration {
 	return prd.duration
 }
 
+func (prd Period) sumYMD(original int, added int) (int, error) {
+	if prd.negative {
+		if isMaxNegative(added) {
+			return 0, ErrValueOverflow
+		}
+
+		added = -added
+	}
+
+	sum, overflow := safeSumInt(original, added)
+	if overflow {
+		return 0, ErrValueOverflow
+	}
+
+	return sum, nil
+}
+
 func (prd Period) AddDate(years int, months int, days int) (Period, error) {
-	if prd.negative {
-		if isMaxNegative(years) {
-			return Period{}, ErrValueOverflow
-		}
-
-		years = -years
+	sumYears, err := prd.sumYMD(prd.years, years)
+	if err != nil {
+		return Period{}, err
 	}
 
-	if prd.negative {
-		if isMaxNegative(months) {
-			return Period{}, ErrValueOverflow
-		}
-
-		months = -months
+	sumMonths, err := prd.sumYMD(prd.months, months)
+	if err != nil {
+		return Period{}, err
 	}
 
-	if prd.negative {
-		if isMaxNegative(days) {
-			return Period{}, ErrValueOverflow
-		}
-
-		days = -days
-	}
-
-	sumYears, overflow := safeSumInt(prd.years, years)
-	if overflow {
-		return Period{}, ErrValueOverflow
-	}
-
-	sumMonths, overflow := safeSumInt(prd.months, months)
-	if overflow {
-		return Period{}, ErrValueOverflow
-	}
-
-	sumDays, overflow := safeSumInt(prd.days, days)
-	if overflow {
-		return Period{}, ErrValueOverflow
+	sumDays, err := prd.sumYMD(prd.days, days)
+	if err != nil {
+		return Period{}, err
 	}
 
 	prd.years = sumYears
