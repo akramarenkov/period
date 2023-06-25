@@ -1098,6 +1098,23 @@ func TestNewPeriodCustomInvalidUnitsTable(t *testing.T) {
 	require.Error(t, err)
 }
 
+func TestString0s(t *testing.T) {
+	period := New()
+	require.Equal(t, "0s", period.String())
+
+	period.SetNegative(true)
+	require.Equal(t, "0s", period.String())
+
+	require.NoError(t, period.SetYears(-1))
+	require.Equal(t, "-1y", period.String())
+
+	require.NoError(t, period.SetYears(0))
+	require.Equal(t, "0s", period.String())
+
+	period.SetNegative(false)
+	require.Equal(t, "0s", period.String())
+}
+
 func benchmarkParseString(b *testing.B, name string) {
 	input := " - 3mo 10d 2y 23h59m58s10ms30µs10ns"
 	output := "-2y3mo10d23h59m58.01003001s"

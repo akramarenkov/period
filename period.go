@@ -471,7 +471,7 @@ func addValue[Type constraints.Integer](
 func (prd Period) String() string {
 	builder := &strings.Builder{}
 
-	if prd.negative {
+	if prd.negative && !prd.isZero() {
 		builder.WriteByte(minusSign)
 	}
 
@@ -508,6 +508,10 @@ func (prd Period) String() string {
 	}
 
 	return builder.String()
+}
+
+func (prd Period) isZero() bool {
+	return prd.years == 0 && prd.months == 0 && prd.days == 0 && prd.duration == 0
 }
 
 func (prd Period) countHMS() (int64, int64, float64) {
