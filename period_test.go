@@ -823,6 +823,48 @@ func TestDurationImitation(t *testing.T) {
 	require.Equal(t, duration.String(), period.String())
 }
 
+func TestDurationImitation1s(t *testing.T) {
+	period, found, err := Parse("1s")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	duration, err := time.ParseDuration("1s")
+	require.NoError(t, err)
+
+	require.Equal(t, duration, period.Duration())
+	require.Equal(t, duration.String(), period.String())
+
+	period, found, err = Parse("1.1s")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	duration, err = time.ParseDuration("1.1s")
+	require.NoError(t, err)
+
+	require.Equal(t, duration, period.Duration())
+	require.Equal(t, duration.String(), period.String())
+
+	period, found, err = Parse("1.000000001s")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	duration, err = time.ParseDuration("1.000000001s")
+	require.NoError(t, err)
+
+	require.Equal(t, duration, period.Duration())
+	require.Equal(t, duration.String(), period.String())
+
+	period, found, err = Parse("1.0000000001s")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	duration, err = time.ParseDuration("1.0000000001s")
+	require.NoError(t, err)
+
+	require.Equal(t, duration, period.Duration())
+	require.Equal(t, duration.String(), period.String())
+}
+
 func TestAddDate(t *testing.T) {
 	period, found, err := Parse("2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
