@@ -5,99 +5,28 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"unicode"
 
 	"golang.org/x/exp/constraints"
 )
 
-const (
-	dotSign   = '.'
-	minusSign = '-'
-)
-
 var (
-	ErrEmptyUnitModifier       = errors.New("unit modifier is empty")
-	ErrIncompleteNumber        = errors.New("incomplete named number")
-	ErrInvalidExpression       = errors.New("invalid expression")
-	ErrInvalidUnit             = errors.New("invalid unit")
-	ErrMissingUnit             = errors.New("missing unit")
-	ErrMissingUnitModifier     = errors.New("unit modifier is missing")
-	ErrNumberUnitIsNotUnique   = errors.New("named number unit is not unique")
-	ErrUnexpectedNumberFormat  = errors.New("unexpected number format")
-	ErrUnexpectedNumberSign    = errors.New("unexpected number sign")
-	ErrUnexpectedSymbol        = errors.New("unexpected symbol")
-	ErrUnitModifierIsNotUnique = errors.New("unit modifier is not unique")
-	ErrValueOverflow           = errors.New("value overflow")
+	ErrUnexpectedNumberSign = errors.New("unexpected number sign")
 )
 
-type Unit int
-
-const (
-	UnitUnknown Unit = iota
-	UnitYear
-	UnitMonth
-	UnitDay
-	UnitHour
-	UnitMinute
-	UnitSecond
-	UnitMillisecond
-	UnitMicrosecond
-	UnitNanosecond
-)
-
-const (
-	validUnitsQuantity = 9
-)
-
-// Units table for custom parsing and converting to string.
-//
-// Must contains all Unit constants (except UnitUnknown) and
-// at least one modifier for each unit of measure.
-//
-// Default units:
-// y      - years;
-// mo     - months;
-// d      - days;
-// h      - hours;
-// m      - minutes;
-// s      - seconds;
-// ms     - milliseconds;
-// us, µs - microseconds;
-// ns     - nanoseconds
-type UnitsTable map[Unit][]string
-
-var defaultUnits = UnitsTable{
-	UnitYear: {
-		"y",
-	},
-	UnitMonth: {
-		"mo",
-	},
-	UnitDay: {
-		"d",
-	},
-	UnitHour: {
-		"h",
-	},
-	UnitMinute: {
-		"m",
-	},
-	UnitSecond: {
-		"s",
-	},
-	UnitMillisecond: {
-		"ms",
-	},
-	UnitMicrosecond: {
-		"us",
-		"µs",
-	},
-	UnitNanosecond: {
-		"ns",
-	},
+type Opts struct {
+	// Provides more accurate parsing in the presence of non-significant zeros in
+	// the input string
+	ExtraZerosResistance bool
+	// Disables validates units table
+	NotValidateUnits bool
+	Units            UnitsTable
+	// Enables checking for units uniqueness in the input string
+	UnitsMustBeUnique bool
 }
 
 type Period struct {
+	opts Opts
+
 	negative bool
 
 	years  int
@@ -105,37 +34,58 @@ type Period struct {
 	days   int
 
 	duration time.Duration
-
-	table UnitsTable
 }
 
 // Creates empty Period instance with default units table
 func New() Period {
-	return newPeriod(defaultUnits)
+	opts := Opts{
+		Units: defaultUnits,
+	}
+
+	return newPeriod(opts)
 }
 
 // Creates empty Period instance with custom units table.
 //
 // Units table validates before create instance
-func NewCustom(table UnitsTable) (Period, error) {
-	if err := IsValidUnitsTable(table); err != nil {
+func NewCustom(units UnitsTable) (Period, error) {
+	if err := IsValidUnitsTable(units); err != nil {
 		return Period{}, err
 	}
 
-	return newPeriod(table), nil
+	opts := Opts{
+		Units: units,
+	}
+
+	return newPeriod(opts), nil
 }
 
 // Creates empty Period instance with custom units table.
 //
 // Units table not validates before create instance. Use IsValidUnitsTable()
 // yourself before creates instance
-func NewCustomUnsafe(table UnitsTable) Period {
-	return newPeriod(table)
+func NewCustomUnsafe(units UnitsTable) Period {
+	opts := Opts{
+		Units: units,
+	}
+
+	return newPeriod(opts)
 }
 
-func newPeriod(table UnitsTable) Period {
+// Creates empty Period instance with options.
+func NewWithOpts(opts Opts) (Period, error) {
+	if !opts.NotValidateUnits {
+		if err := IsValidUnitsTable(opts.Units); err != nil {
+			return Period{}, err
+		}
+	}
+
+	return newPeriod(opts), nil
+}
+
+func newPeriod(opts Opts) Period {
 	prd := Period{
-		table: table,
+		opts: opts,
 	}
 
 	return prd
@@ -143,52 +93,100 @@ func newPeriod(table UnitsTable) Period {
 
 // Creates Period instance from input string with default units table.
 func Parse(input string) (Period, bool, error) {
-	return parse(input, defaultUnits)
+	opts := Opts{
+		Units: defaultUnits,
+	}
+
+	return parse(input, opts)
 }
 
 // Creates Period instance from input string with custom units table.
 //
 // Units table validates before create instance
-func ParseCustom(input string, table UnitsTable) (Period, bool, error) {
-	if err := IsValidUnitsTable(table); err != nil {
+func ParseCustom(input string, units UnitsTable) (Period, bool, error) {
+	if err := IsValidUnitsTable(units); err != nil {
 		return Period{}, false, err
 	}
 
-	return parse(input, table)
+	opts := Opts{
+		Units: units,
+	}
+
+	return parse(input, opts)
 }
 
 // Creates Period instance from input string with custom units table.
 //
 // Units table not validates before create instance. Use IsValidUnitsTable()
 // yourself before creates instance
-func ParseCustomUnsafe(input string, table UnitsTable) (Period, bool, error) {
-	return parse(input, table)
+func ParseCustomUnsafe(input string, units UnitsTable) (Period, bool, error) {
+	opts := Opts{
+		Units: units,
+	}
+
+	return parse(input, opts)
 }
 
-func parse(input string, table UnitsTable) (Period, bool, error) {
+// Creates Period instance from input string with options.
+func ParseWithOpts(input string, opts Opts) (Period, bool, error) {
+	if !opts.NotValidateUnits {
+		if err := IsValidUnitsTable(opts.Units); err != nil {
+			return Period{}, false, err
+		}
+	}
+
+	return parse(input, opts)
+}
+
+func (prd *Period) Parse(input string) (bool, error) {
+	period, found, err := parse(input, prd.opts)
+	if err != nil {
+		return false, err
+	}
+
+	*prd = period
+
+	return found, nil
+}
+
+func parse(input string, opts Opts) (Period, bool, error) {
 	runes := []rune(input)
 
-	negative, shift, err := isNegative(runes)
+	negative, shift, err := isNegative(
+		runes,
+		defaultMinusSign,
+		defaultPlusSign,
+		defaultFractionalSeparator,
+	)
 	if err != nil {
 		return Period{}, false, err
 	}
 
-	found, err := findNumbers(runes[shift:], table)
+	if isSpecialZero(runes[shift:]) {
+		return Period{opts: opts}, true, nil
+	}
+
+	found, err := findNamedNumbers(
+		runes[shift:],
+		opts.Units,
+		defaultFractionalSeparator,
+		opts.UnitsMustBeUnique,
+	)
 	if err != nil {
 		return Period{}, false, err
 	}
 
 	period := Period{
+		opts:     opts,
 		negative: negative,
-		table:    table,
 	}
 
 	if len(found) == 0 {
 		return period, false, nil
 	}
 
-	for unit, number := range found {
-		updated, err := period.parseNumber(string(number), unit)
+	for _, named := range found {
+		updated, err := period.parseNumber(named)
 		if err != nil {
 			return Period{}, false, err
 		}
@@ -199,79 +197,64 @@ func parse(input string, table UnitsTable) (Period, bool, error) {
 	return period, true, nil
 }
 
-func (prd Period) parseNumber(number string, unit Unit) (Period, error) {
-	if isYMDUnit(unit) {
-		return prd.parseYMDNumber(number, unit)
+func (prd Period) parseNumber(named namedNumber) (Period, error) {
+	if isYMDUnit(named.Unit) {
+		return prd.parseYMDNumber(named)
 	}
 
-	return prd.parseHMSNumber(number, unit)
+	return prd.parseHMSNumber(named)
 }
 
-func (prd Period) parseYMDNumber(number string, unit Unit) (Period, error) {
-	parsed, err := strconv.Atoi(number)
+func (prd Period) parseYMDNumber(named namedNumber) (Period, error) {
+	parsed, err := strconv.ParseInt(string(named.Number), int(defaultNumberBase), 0)
 	if err != nil {
 		return Period{}, err
 	}
 
-	switch unit {
+	switch named.Unit {
 	case UnitYear:
-		prd.years = parsed
+		years, err := safeSumInt(prd.years, int(parsed))
+		if err != nil {
+			return Period{}, err
+		}
+
+		prd.years = years
 	case UnitMonth:
-		prd.months = parsed
+		months, err := safeSumInt(prd.months, int(parsed))
+		if err != nil {
+			return Period{}, err
+		}
+
+		prd.months = months
 	case UnitDay:
-		prd.days = parsed
+		days, err := safeSumInt(prd.days, int(parsed))
+		if err != nil {
+			return Period{}, err
+		}
+
+		prd.days = days
 	}
 
 	return prd, nil
 }
 
-func (prd Period) parseHMSNumber(number string, unit Unit) (Period, error) {
-	if integer, err := strconv.ParseInt(number, 10, 64); err == nil {
-		return prd.addInt(integer, unit)
-	}
-
-	if float, err := strconv.ParseFloat(number, 64); err == nil {
-		return prd.addFloat(float, unit)
-	}
-
-	return Period{}, ErrUnexpectedNumberFormat
-}
-
-func (prd Period) addInt(parsed int64, unit Unit) (Period, error) {
-	dimension := getDimension(unit)
-
-	added, overflow := safeProductInt(time.Duration(parsed), dimension)
-	if overflow {
-		return Period{}, ErrValueOverflow
-	}
-
-	sum, overflow := safeSumInt(prd.duration, added)
-	if overflow {
-		return Period{}, ErrValueOverflow
-	}
-
-	prd.duration = sum
-
-	return prd, nil
-}
-
-func (prd Period) addFloat(parsed float64, unit Unit) (Period, error) {
-	dimension := getDimension(unit)
-
-	added, overflow := safeFloatToInt[float64, time.Duration](
-		parsed * float64(dimension),
+func (prd Period) parseHMSNumber(named namedNumber) (Period, error) {
+	duration, err := parseDuration(
+		named,
+		defaultNumberBase,
+		defaultFractionalSeparator,
+		prd.opts.ExtraZerosResistance,
 	)
-
-	if overflow {
-		return Period{}, ErrValueOverflow
+	if err != nil {
+		return Period{}, err
 	}
 
-	sum, overflow := safeSumInt(prd.duration, added)
-	if overflow {
-		return Period{}, ErrValueOverflow
+	duration, err = safeSumInt(prd.duration, duration)
+	if err != nil {
+		return Period{}, err
 	}
 
-	prd.duration = sum
+	prd.duration = duration
 
 	return prd, nil
 }
@@ -314,7 +297,7 @@ func (prd Period) Years() int {
 
 // Sets years separately
 func (prd *Period) SetYears(years int) error {
-	years, err := normalizeSettableValue(prd.negative, years)
+	years, err := normalizeValue(prd.negative, years)
 	if err != nil {
 		return err
 	}
@@ -335,7 +318,7 @@ func (prd Period) Months() int {
 
 // Sets months separately
 func (prd *Period) SetMonths(months int) error {
-	months, err := normalizeSettableValue(prd.negative, months)
+	months, err := normalizeValue(prd.negative, months)
 	if err != nil {
 		return err
 	}
@@ -356,7 +339,7 @@ func (prd Period) Days() int {
 
 // Sets days separately
 func (prd *Period) SetDays(days int) error {
-	days, err := normalizeSettableValue(prd.negative, days)
+	days, err := normalizeValue(prd.negative, days)
 	if err != nil {
 		return err
 	}
@@ -385,7 +368,7 @@ func (prd Period) Duration() time.Duration {
 // It is not Period duration, it is part of Period with value of
 // hours, minutes, seconds and etc.
 func (prd *Period) SetDuration(duration time.Duration) error {
-	duration, err := normalizeSettableValue(prd.negative, duration)
+	duration, err := normalizeValue(prd.negative, duration)
 	if err != nil {
 		return err
 	}
@@ -395,7 +378,7 @@ func (prd *Period) SetDuration(duration time.Duration) error {
 	return nil
 }
 
-func normalizeSettableValue[Type constraints.Integer](
+func normalizeValue[Type constraints.Integer](
 	negative bool,
 	value Type,
 ) (Type, error) {
@@ -408,11 +391,12 @@ func normalizeSettableValue[Type constraints.Integer](
 	}
 
 	if value < 0 {
-		if isMaxNegative(value) {
-			return 0, ErrValueOverflow
+		inverted, err := safeInvertInt(value)
+		if err != nil {
+			return 0, err
 		}
 
-		return -value, nil
+		return inverted, nil
 	}
 
 	return value, nil
@@ -463,60 +447,32 @@ func addValue[Type constraints.Integer](
 	added Type,
 ) (Type, error) {
 	if negative {
-		if isMaxNegative(added) {
-			return 0, ErrValueOverflow
+		inverted, err := safeInvertInt(added)
+		if err != nil {
+			return 0, err
 		}
 
-		added = -added
+		return safeSumInt(original, inverted)
 	}
 
-	sum, overflow := safeSumInt(original, added)
-	if overflow {
-		return 0, ErrValueOverflow
-	}
-
-	return sum, nil
+	return safeSumInt(original, added)
 }
 
 // Converts Period value into string
 func (prd Period) String() string {
 	builder := &strings.Builder{}
 
+	if prd.isZero() {
+		return "0s"
+	}
+
 	if prd.negative && !prd.isZero() {
-		builder.WriteByte(minusSign)
+		builder.WriteByte(defaultMinusSign)
 	}
 
-	if prd.years != 0 {
-		builder.WriteString(strconv.Itoa(prd.years))
-		builder.WriteString(prd.table[UnitYear][0])
-	}
+	upperWritten := prd.writeYMD(builder)
 
-	if prd.months != 0 {
-		builder.WriteString(strconv.Itoa(prd.months))
-		builder.WriteString(prd.table[UnitMonth][0])
-	}
-
-	if prd.days != 0 {
-		builder.WriteString(strconv.Itoa(prd.days))
-		builder.WriteString(prd.table[UnitDay][0])
-	}
-
-	hours, minutes, seconds := prd.countHMS()
-
-	if hours != 0 {
-		builder.WriteString(strconv.FormatInt(hours, 10))
-		builder.WriteString(prd.table[UnitHour][0])
-	}
-
-	if minutes != 0 {
-		builder.WriteString(strconv.FormatInt(minutes, 10))
-		builder.WriteString(prd.table[UnitMinute][0])
-	}
-
-	if seconds != 0 || builder.Len() == 0 {
-		builder.WriteString(strconv.FormatFloat(seconds, 'f', -1, 64))
-		builder.WriteString(prd.table[UnitSecond][0])
-	}
+	prd.writeHMS(builder, upperWritten)
 
 	return builder.String()
 }
@@ -525,270 +481,122 @@ func (prd Period) isZero() bool {
 	return prd.years == 0 && prd.months == 0 && prd.days == 0 && prd.duration == 0
 }
 
-func (prd Period) countHMS() (int64, int64, float64) {
-	remainder := prd.duration
+func (prd Period) writeYMD(builder *strings.Builder) bool {
+	upperWritten := false
 
-	hours := remainder / time.Hour
-	remainder -= hours * time.Hour
+	if prd.years != 0 {
+		upperWritten = true
 
-	minutes := remainder / time.Minute
-	remainder -= minutes * time.Minute
+		prd.writeNumber(builder, int64(prd.years), 0, UnitYear)
+	}
 
-	seconds := remainder / time.Second
-	remainder -= seconds * time.Second
+	if prd.months != 0 || upperWritten {
+		upperWritten = true
 
+		prd.writeNumber(builder, int64(prd.months), 0, UnitMonth)
+	}
+
+	if prd.days != 0 || upperWritten {
+		upperWritten = true
+
+		prd.writeNumber(builder, int64(prd.days), 0, UnitDay)
+	}
+
+	return upperWritten
+}
+
+func (prd Period) writeHMS(builder *strings.Builder, upperWritten bool) {
+	hours, minutes, seconds, remainder := calcHMS(prd.duration)
+
+	if hours != 0 || upperWritten {
+		upperWritten = true
+
+		prd.writeNumber(builder, int64(hours), 0, UnitHour)
+	}
+
+	if minutes != 0 || upperWritten {
+		upperWritten = true
+
+		prd.writeNumber(builder, int64(minutes), 0, UnitMinute)
+	}
+
+	if seconds != 0 || upperWritten {
+		prd.writeNumber(builder, int64(seconds), int64(remainder), UnitSecond)
+		return
+	}
+
+	milli, milliFractional, micro, microFractional, nano := calcMMN(remainder)
+
+	if milli != 0 {
+		prd.writeNumber(builder, int64(milli), int64(milliFractional), UnitMillisecond)
+		return
+	}
+
+	if micro != 0 {
+		prd.writeNumber(builder, int64(micro), int64(microFractional), UnitMicrosecond)
+		return
+	}
+
+	if nano != 0 {
+		prd.writeNumber(builder, int64(remainder), 0, UnitNanosecond)
+	}
+}
+
+func calcHMS(duration time.Duration) (
+	time.Duration,
+	time.Duration,
+	time.Duration,
+	time.Duration,
+) {
+	hours := duration / time.Hour
+	duration -= hours * time.Hour
+
+	minutes := duration / time.Minute
+	duration -= minutes * time.Minute
+
+	seconds := duration / time.Second
+	duration -= seconds * time.Second
+
+	return hours, minutes, seconds, duration
+}
+
+func calcMMN(remainder time.Duration) (
+	time.Duration,
+	time.Duration,
+	time.Duration,
+	time.Duration,
+	time.Duration,
+) {
 	milli := remainder / time.Millisecond
 	remainder -= milli * time.Millisecond
+	milliFractional := remainder * time.Second / time.Millisecond
 
 	micro := remainder / time.Microsecond
 	remainder -= micro * time.Microsecond
+	microFractional := remainder * time.Second / time.Microsecond
 
-	nano := remainder
-
-	float := float64(seconds)
-	float += float64(milli) * float64(time.Millisecond) / float64(time.Second)
-	float += float64(micro) * float64(time.Microsecond) / float64(time.Second)
-	float += float64(nano) * float64(time.Nanosecond) / float64(time.Second)
-
-	return int64(hours), int64(minutes), float
+	return milli, milliFractional, micro, microFractional, remainder
 }
 
-func isNegative(input []rune) (bool, int, error) {
-	found := false
+func (prd Period) writeNumber(
+	builder *strings.Builder,
+	integer int64,
+	fractional int64,
+	unit Unit,
+) {
+	builder.WriteString(strconv.FormatInt(integer, int(defaultNumberBase)))
 
-	for id, symbol := range input {
-		if unicode.IsSpace(symbol) {
-			continue
-		}
-
-		if symbol == minusSign {
-			found = true
-			continue
-		}
-
-		if unicode.IsDigit(symbol) {
-			if found {
-				return true, id, nil
-			}
-
-			return false, 0, nil
-		}
-
-		return false, 0, ErrUnexpectedSymbol
-	}
-
-	if found {
-		return false, 0, ErrInvalidExpression
-	}
-
-	return false, 0, nil
-}
-
-func findNumbers(input []rune, table UnitsTable) (map[Unit][]rune, error) {
-	retrieved := map[Unit][]rune{}
-
-	shift := 0
-
-	for shift != len(input) {
-		number, next, found, unit, err := findNumber(input[shift:], table)
-		if err != nil {
-			return nil, err
-		}
-
-		if !found {
-			return nil, nil
-		}
-
-		if _, exists := retrieved[unit]; exists {
-			return nil, ErrNumberUnitIsNotUnique
-		}
-
-		retrieved[unit] = number
-
-		shift += next
-	}
-
-	return retrieved, nil
-}
-
-func findNumber(input []rune, table UnitsTable) ([]rune, int, bool, Unit, error) {
-	begin := -1
-	doted := false
-
-	for id, symbol := range input {
-		if unicode.IsSpace(symbol) {
-			if begin != -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
-			}
-
-			continue
-		}
-
-		if unicode.IsDigit(symbol) {
-			if begin == -1 {
-				begin = id
-			}
-
-			continue
-		}
-
-		if symbol == dotSign && !doted {
-			if begin == -1 {
-				begin = id
-			}
-
-			doted = true
-
-			continue
-		}
-
-		unit, found, next := findUnit(input[id:], table)
-		if found {
-			if begin == -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
-			}
-
-			return input[begin:id], id + next, true, unit, nil
-		}
-
-		return nil, 0, false, UnitUnknown, ErrUnexpectedSymbol
-	}
-
-	if begin != -1 {
-		return nil, 0, false, UnitUnknown, ErrIncompleteNumber
-	}
-
-	return nil, 0, false, UnitUnknown, nil
-}
-
-func findUnit(input []rune, table UnitsTable) (Unit, bool, int) {
-	for unit, modifiers := range table {
-		for _, modifier := range modifiers {
-			runed := []rune(modifier)
-
-			if !isModifierPossibleMatch(input, runed) {
-				continue
-			}
-
-			challenger := input[:len(runed)]
-
-			if string(challenger) == modifier {
-				return unit, true, len(runed)
-			}
+	if fractional != 0 {
+		formated, err := formatFractional(
+			fractional,
+			defaultNumberBase,
+			defaultFormatFractionalSize,
+			defaultFractionalSeparator,
+		)
+		if err == nil {
+			builder.WriteString(formated)
 		}
 	}
 
-	return UnitUnknown, false, 0
-}
-
-func isModifierPossibleMatch(input []rune, modifier []rune) bool {
-	if len(input) < len(modifier) {
-		return false
-	}
-
-	if len(input) == len(modifier) {
-		return true
-	}
-
-	after := input[len(modifier)]
-
-	switch {
-	case unicode.IsSpace(after):
-		return true
-	case unicode.IsDigit(after):
-		return true
-	}
-
-	return false
-}
-
-// Validates units table
-func IsValidUnitsTable(table UnitsTable) error {
-	unitsQuantity := 0
-	uniqueModifiers := make(map[string]struct{}, len(table))
-
-	for unit, modifiers := range table {
-		if err := isValidUnit(unit); err != nil {
-			return err
-		}
-
-		unitsQuantity++
-
-		if err := isValidModifiers(modifiers, uniqueModifiers); err != nil {
-			return err
-		}
-	}
-
-	if unitsQuantity != validUnitsQuantity {
-		return ErrMissingUnit
-	}
-
-	return nil
-}
-
-func isValidModifiers(modifiers []string, uniqueModifiers map[string]struct{}) error {
-	if len(modifiers) == 0 {
-		return ErrMissingUnitModifier
-	}
-
-	for _, modifier := range modifiers {
-		if len(modifier) == 0 {
-			return ErrEmptyUnitModifier
-		}
-
-		if _, exists := uniqueModifiers[modifier]; exists {
-			return ErrUnitModifierIsNotUnique
-		}
-
-		uniqueModifiers[modifier] = struct{}{}
-	}
-
-	return nil
-}
-
-func isValidUnit(unit Unit) error {
-	switch unit {
-	case UnitYear:
-	case UnitMonth:
-	case UnitDay:
-	case UnitHour:
-	case UnitMinute:
-	case UnitSecond:
-	case UnitMillisecond:
-	case UnitMicrosecond:
-	case UnitNanosecond:
-	default:
-		return ErrInvalidUnit
-	}
-
-	return nil
-}
-
-func getDimension(unit Unit) time.Duration {
-	switch unit {
-	case UnitHour:
-		return time.Hour
-	case UnitMinute:
-		return time.Minute
-	case UnitSecond:
-		return time.Second
-	case UnitMillisecond:
-		return time.Millisecond
-	case UnitMicrosecond:
-		return time.Microsecond
-	}
-
-	return time.Nanosecond
-}
-
-func isYMDUnit(unit Unit) bool {
-	switch unit {
-	case UnitYear:
-	case UnitMonth:
-	case UnitDay:
-	default:
-		return false
-	}
-
-	return true
+	builder.WriteString(prd.opts.Units[unit][0])
 }
