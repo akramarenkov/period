@@ -52,7 +52,18 @@ const (
 // Units table for custom parsing and converting to string.
 //
 // Must contains all Unit constants (except UnitUnknown) and
-// at least one modifier for each unit of measure
+// at least one modifier for each unit of measure.
+//
+// Default units:
+// y      - years;
+// mo     - months;
+// d      - days;
+// h      - hours;
+// m      - minutes;
+// s      - seconds;
+// ms     - milliseconds;
+// us, µs - microseconds;
+// ns     - nanoseconds
 type UnitsTable map[Unit][]string
 
 var defaultUnits = UnitsTable{
