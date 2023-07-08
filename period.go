@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/akramarenkov/safe"
 	"golang.org/x/exp/constraints"
 )
 
@@ -213,21 +214,21 @@ func (prd Period) parseYMDNumber(named namedNumber) (Period, error) {
 
 	switch named.Unit {
 	case UnitYear:
-		years, err := safeSumInt(prd.years, int(parsed))
+		years, err := safe.SumInt(prd.years, int(parsed))
 		if err != nil {
 			return Period{}, err
 		}
 
 		prd.years = years
 	case UnitMonth:
-		months, err := safeSumInt(prd.months, int(parsed))
+		months, err := safe.SumInt(prd.months, int(parsed))
 		if err != nil {
 			return Period{}, err
 		}
 
 		prd.months = months
 	case UnitDay:
-		days, err := safeSumInt(prd.days, int(parsed))
+		days, err := safe.SumInt(prd.days, int(parsed))
 		if err != nil {
 			return Period{}, err
 		}
@@ -249,7 +250,7 @@ func (prd Period) parseHMSNumber(named namedNumber) (Period, error) {
 		return Period{}, err
 	}
 
-	duration, err = safeSumInt(prd.duration, duration)
+	duration, err = safe.SumInt(prd.duration, duration)
 	if err != nil {
 		return Period{}, err
 	}
@@ -378,7 +379,7 @@ func (prd *Period) SetDuration(duration time.Duration) error {
 	return nil
 }
 
-func normalizeValue[Type constraints.Integer](
+func normalizeValue[Type constraints.Signed](
 	negative bool,
 	value Type,
 ) (Type, error) {
@@ -391,7 +392,7 @@ func normalizeValue[Type constraints.Integer](
 	}
 
 	if value < 0 {
-		inverted, err := safeInvertInt(value)
+		inverted, err := safe.Invert(value)
 		if err != nil {
 			return 0, err
 		}
@@ -441,21 +442,21 @@ func (prd *Period) AddDuration(duration time.Duration) error {
 	return nil
 }
 
-func addValue[Type constraints.Integer](
+func addValue[Type constraints.Signed](
 	negative bool,
 	original Type,
 	added Type,
 ) (Type, error) {
 	if negative {
-		inverted, err := safeInvertInt(added)
+		inverted, err := safe.Invert(added)
 		if err != nil {
 			return 0, err
 		}
 
-		return safeSumInt(original, inverted)
+		return safe.SumInt(original, inverted)
 	}
 
-	return safeSumInt(original, added)
+	return safe.SumInt(original, added)
 }
 
 // Converts Period value into string

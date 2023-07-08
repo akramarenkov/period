@@ -4,6 +4,8 @@ import (
 	"errors"
 	"time"
 	"unicode"
+
+	"github.com/akramarenkov/safe"
 )
 
 var (
@@ -258,7 +260,7 @@ func parseDuration(
 		return 0, err
 	}
 
-	duration, err := safeSumInt(basic, additional)
+	duration, err := safe.SumInt(basic, additional)
 	if err != nil {
 		return 0, err
 	}
@@ -308,13 +310,13 @@ func parseIntegerDuration(
 		}
 
 		// we will assume that overflow is impossible for int64(numberBase)
-		number, err = safeProductInt(number, int64(numberBase))
+		number, err = safe.ProductInt(number, int64(numberBase))
 		if err != nil {
 			return 0, err
 		}
 
 		// we will assume that overflow is impossible for int64(digit)
-		number, err = safeSumInt(number, int64(digit))
+		number, err = safe.SumInt(number, int64(digit))
 		if err != nil {
 			return 0, err
 		}
@@ -326,7 +328,7 @@ func parseIntegerDuration(
 	}
 
 	// overflow is impossible for int64(dimension)
-	number, err = safeProductInt(number, int64(dimension))
+	number, err = safe.ProductInt(number, int64(dimension))
 	if err != nil {
 		return 0, err
 	}
@@ -349,13 +351,13 @@ func parseFractionalDuration(
 		}
 
 		// we will assume that overflow is impossible for int64(numberBase)
-		product, err := safeProductInt(number, int64(numberBase))
+		product, err := safe.ProductInt(number, int64(numberBase))
 		if err != nil {
 			break
 		}
 
 		// we will assume that overflow is impossible for int64(digit)
-		sum, err := safeSumInt(product, int64(digit))
+		sum, err := safe.SumInt(product, int64(digit))
 		if err != nil {
 			break
 		}

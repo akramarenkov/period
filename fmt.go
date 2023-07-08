@@ -1,6 +1,10 @@
 package period
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/akramarenkov/safe"
+)
 
 var (
 	ErrNumberBaseIsZero = errors.New("number base is zero")
@@ -22,17 +26,17 @@ func formatFractional(
 		return "", ErrNumberBaseIsZero
 	}
 
-	powered, err := safePowUint(numberBase, fractionalSize)
+	powered, err := safe.PowUnsigned(numberBase, fractionalSize)
 	if err != nil {
 		return "", err
 	}
 
-	divisor, err := safeUintToInt[uint, int64](powered)
+	divisor, err := safe.UnsignedToSigned[uint, int64](powered)
 	if err != nil {
 		return "", err
 	}
 
-	base, err := safeUintToInt[uint, int64](numberBase)
+	base, err := safe.UnsignedToSigned[uint, int64](numberBase)
 	if err != nil {
 		return "", err
 	}
