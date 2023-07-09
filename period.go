@@ -205,7 +205,7 @@ func (prd Period) parseNumber(named namedNumber) (Period, error) {
 }
 
 func (prd Period) parseYMDNumber(named namedNumber) (Period, error) {
-	parsed, err := strconv.ParseInt(string(named.Number), int(defaultNumberBase), 0)
+	parsed, err := strconv.ParseInt(named.Number, int(defaultNumberBase), 0)
 	if err != nil {
 		return Period{}, err
 	}
