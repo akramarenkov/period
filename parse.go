@@ -8,10 +8,6 @@ import (
 	"github.com/akramarenkov/safe"
 )
 
-const (
-	typicalNamedNumbers = 9
-)
-
 var (
 	ErrIncompleteNumber       = errors.New("incomplete named number")
 	ErrInvalidExpression      = errors.New("invalid expression")
@@ -84,11 +80,13 @@ func findNamedNumbers(
 	units UnitsTable,
 	fractionalSeparator byte,
 	unitsMustBeUnique bool,
-) ([]namedNumber, error) {
-	retrieved := make([]namedNumber, 0, typicalNamedNumbers)
-	unique := make(map[Unit]struct{})
+	onDetect func(namedNumber) error,
+) (bool, error) {
+	detected := false
 
 	shift := 0
+
+	unique := make(map[Unit]struct{})
 
 	for shift != len(input) {
 		number, next, found, unit, err := findNamedNumber(
@@ -97,16 +95,16 @@ func findNamedNumbers(
 			fractionalSeparator,
 		)
 		if err != nil {
-			return nil, err
+			return false, err
 		}
 
 		if !found {
-			return nil, nil
+			return false, nil
 		}
 
 		if unitsMustBeUnique {
 			if err := isUniqueUnit(unique, unit); err != nil {
-				return nil, err
+				return false, err
 			}
 		}
 
@@ -115,12 +113,16 @@ func findNamedNumbers(
 			Number: number,
 		}
 
-		retrieved = append(retrieved, named)
+		if err := onDetect(named); err != nil {
+			return false, err
+		}
+
+		detected = true
 
 		shift += next
 	}
 
-	return retrieved, nil
+	return detected, nil
 }
 
 func isUniqueUnit(unique map[Unit]struct{}, unit Unit) error {

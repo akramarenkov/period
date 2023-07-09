@@ -165,35 +165,34 @@ func parse(input string, opts Opts) (Period, bool, error) {
 		return Period{opts: opts}, true, nil
 	}
 
-	found, err := findNamedNumbers(
-		input[shift:],
-		opts.Units,
-		defaultFractionalSeparator,
-		opts.UnitsMustBeUnique,
-	)
-	if err != nil {
-		return Period{}, false, err
-	}
-
 	period := Period{
 		opts:     opts,
 		negative: negative,
 	}
 
-	if len(found) == 0 {
-		return period, false, nil
-	}
-
-	for _, named := range found {
+	update := func(named namedNumber) error {
 		updated, err := period.parseNumber(named)
 		if err != nil {
-			return Period{}, false, err
+			return err
 		}
 
 		period = updated
+
+		return nil
 	}
 
-	return period, true, nil
+	found, err := findNamedNumbers(
+		input[shift:],
+		opts.Units,
+		defaultFractionalSeparator,
+		opts.UnitsMustBeUnique,
+		update,
+	)
+	if err != nil {
+		return Period{}, false, err
+	}
+
+	return period, found, nil
 }
 
 func (prd Period) parseNumber(named namedNumber) (Period, error) {
