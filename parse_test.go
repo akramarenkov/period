@@ -8,15 +8,15 @@ import (
 )
 
 func TestIsSpecialZero(t *testing.T) {
-	require.Equal(t, true, isSpecialZero([]rune("0")))
-	require.Equal(t, false, isSpecialZero([]rune("1")))
-	require.Equal(t, false, isSpecialZero([]rune("")))
-	require.Equal(t, false, isSpecialZero([]rune("00")))
+	require.Equal(t, true, isSpecialZero("0"))
+	require.Equal(t, false, isSpecialZero("1"))
+	require.Equal(t, false, isSpecialZero(""))
+	require.Equal(t, false, isSpecialZero("00"))
 }
 
 func TestIsNegative(t *testing.T) {
 	negative, next, err := isNegative(
-		[]rune("-10"),
+		"-10",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -26,7 +26,7 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, 1, next)
 
 	negative, next, err = isNegative(
-		[]rune("+10"),
+		"+10",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -35,7 +35,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, false, negative)
 	require.Equal(t, 1, next)
 
-	negative, next, err = isNegative([]rune("   -10"),
+	negative, next, err = isNegative(
+		"   -10",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -44,7 +45,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, true, negative)
 	require.Equal(t, 4, next)
 
-	negative, next, err = isNegative([]rune("- 10"),
+	negative, next, err = isNegative(
+		"- 10",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -53,7 +55,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, true, negative)
 	require.Equal(t, 2, next)
 
-	negative, next, err = isNegative([]rune("   -   10"),
+	negative, next, err = isNegative(
+		"   -   10",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -62,7 +65,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, true, negative)
 	require.Equal(t, 7, next)
 
-	negative, next, err = isNegative([]rune(""),
+	negative, next, err = isNegative(
+		"",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -71,7 +75,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, false, negative)
 	require.Equal(t, 0, next)
 
-	negative, next, err = isNegative([]rune("   "),
+	negative, next, err = isNegative(
+		"   ",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -80,7 +85,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, false, negative)
 	require.Equal(t, 0, next)
 
-	negative, next, err = isNegative([]rune("10"),
+	negative, next, err = isNegative(
+		"10",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -89,7 +95,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, false, negative)
 	require.Equal(t, 0, next)
 
-	negative, next, err = isNegative([]rune("   10"),
+	negative, next, err = isNegative(
+		"   10",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -98,7 +105,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, false, negative)
 	require.Equal(t, 0, next)
 
-	negative, next, err = isNegative([]rune(".0"),
+	negative, next, err = isNegative(
+		".0",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -107,7 +115,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, false, negative)
 	require.Equal(t, 0, next)
 
-	negative, next, err = isNegative([]rune("-.0"),
+	negative, next, err = isNegative(
+		"-.0",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -116,7 +125,8 @@ func TestIsNegative(t *testing.T) {
 	require.Equal(t, true, negative)
 	require.Equal(t, 1, next)
 
-	negative, next, err = isNegative([]rune("+.0"),
+	negative, next, err = isNegative(
+		"+.0",
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -144,7 +154,8 @@ func TestIsNegativeRequireError(t *testing.T) {
 	}
 
 	for _, input := range inputs {
-		negative, next, err := isNegative([]rune(input),
+		negative, next, err := isNegative(
+			input,
 			defaultMinusSign,
 			defaultPlusSign,
 			defaultFractionalSeparator,
@@ -157,7 +168,7 @@ func TestIsNegativeRequireError(t *testing.T) {
 
 func TestFindUnit(t *testing.T) {
 	unit, found, next := findUnit(
-		[]rune("y"),
+		"y",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -166,7 +177,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
-		[]rune("y   "),
+		"y   ",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -175,7 +186,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
-		[]rune("mo"),
+		"mo",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -184,7 +195,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit(
-		[]rune("d"),
+		"d",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -193,7 +204,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
-		[]rune("h"),
+		"h",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -202,7 +213,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
-		[]rune("m"),
+		"m",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -211,7 +222,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
-		[]rune("s"),
+		"s",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -220,7 +231,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
-		[]rune("ms"),
+		"ms",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -229,7 +240,7 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit(
-		[]rune("us"),
+		"us",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -238,25 +249,25 @@ func TestFindUnit(t *testing.T) {
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit(
-		[]rune("µs"),
+		"µs",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
 	require.Equal(t, UnitMicrosecond, unit)
 	require.Equal(t, true, found)
-	require.Equal(t, 2, next)
+	require.Equal(t, 3, next)
 
 	unit, found, next = findUnit(
-		[]rune("μs"),
+		"μs",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
 	require.Equal(t, UnitMicrosecond, unit)
 	require.Equal(t, true, found)
-	require.Equal(t, 2, next)
+	require.Equal(t, 3, next)
 
 	unit, found, next = findUnit(
-		[]rune("ns"),
+		"ns",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -267,7 +278,7 @@ func TestFindUnit(t *testing.T) {
 
 func TestFindUnitNotFound(t *testing.T) {
 	unit, found, next := findUnit(
-		[]rune("u"),
+		"u",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -276,7 +287,7 @@ func TestFindUnitNotFound(t *testing.T) {
 	require.Equal(t, 0, next)
 
 	unit, found, next = findUnit(
-		[]rune("n "),
+		"n ",
 		defaultFractionalSeparator,
 		defaultUnits,
 	)
@@ -287,122 +298,122 @@ func TestFindUnitNotFound(t *testing.T) {
 
 func TestFindNamedNumber(t *testing.T) {
 	number, next, found, unit, err := findNamedNumber(
-		[]rune("10d"),
+		"10d",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune("10"), number)
+	require.Equal(t, "10", number)
 	require.Equal(t, 3, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("   10d"),
+		"   10d",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune("10"), number)
+	require.Equal(t, "10", number)
 	require.Equal(t, 6, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("10d2m"),
+		"10d2m",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune("10"), number)
+	require.Equal(t, "10", number)
 	require.Equal(t, 3, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("   10d2m"),
+		"   10d2m",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune("10"), number)
+	require.Equal(t, "10", number)
 	require.Equal(t, 6, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("1.10d"),
+		"1.10d",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune("1.10"), number)
+	require.Equal(t, "1.10", number)
 	require.Equal(t, 5, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("   1.10d"),
+		"   1.10d",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune("1.10"), number)
+	require.Equal(t, "1.10", number)
 	require.Equal(t, 8, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune(".10d"),
+		".10d",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune(".10"), number)
+	require.Equal(t, ".10", number)
 	require.Equal(t, 4, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("   .10d"),
+		"   .10d",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune(".10"), number)
+	require.Equal(t, ".10", number)
 	require.Equal(t, 7, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("   .d"),
+		"   .d",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune("."), number)
+	require.Equal(t, ".", number)
 	require.Equal(t, 5, next)
 	require.Equal(t, true, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune(""),
+		"",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune(nil), number)
+	require.Equal(t, "", number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
 	require.Equal(t, UnitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber(
-		[]rune("  "),
+		"  ",
 		defaultUnits,
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, []rune(nil), number)
+	require.Equal(t, "", number)
 	require.Equal(t, 0, next)
 	require.Equal(t, false, found)
 	require.Equal(t, UnitUnknown, unit)
@@ -423,12 +434,12 @@ func TestFindNamedNumberRequireError(t *testing.T) {
 
 	for _, input := range inputs {
 		number, next, found, unit, err := findNamedNumber(
-			[]rune(input),
+			input,
 			defaultUnits,
 			defaultFractionalSeparator,
 		)
 		require.Error(t, err)
-		require.Equal(t, []rune(nil), number)
+		require.Equal(t, "", number)
 		require.Equal(t, 0, next)
 		require.Equal(t, false, found)
 		require.Equal(t, UnitUnknown, unit)
@@ -436,40 +447,40 @@ func TestFindNamedNumberRequireError(t *testing.T) {
 }
 
 func TestSplitNumber(t *testing.T) {
-	integer, fractional, err := splitNumber([]rune("1.2"), defaultFractionalSeparator)
+	integer, fractional, err := splitNumber("1.2", defaultFractionalSeparator)
 	require.NoError(t, err)
-	require.Equal(t, []rune("1"), integer)
-	require.Equal(t, []rune("2"), fractional)
+	require.Equal(t, "1", integer)
+	require.Equal(t, "2", fractional)
 
-	integer, fractional, err = splitNumber([]rune(".2"), defaultFractionalSeparator)
+	integer, fractional, err = splitNumber(".2", defaultFractionalSeparator)
 	require.NoError(t, err)
-	require.Equal(t, []rune(""), integer)
-	require.Equal(t, []rune("2"), fractional)
+	require.Equal(t, "", integer)
+	require.Equal(t, "2", fractional)
 
-	integer, fractional, err = splitNumber([]rune("1."), defaultFractionalSeparator)
+	integer, fractional, err = splitNumber("1.", defaultFractionalSeparator)
 	require.NoError(t, err)
-	require.Equal(t, []rune("1"), integer)
-	require.Equal(t, []rune(""), fractional)
+	require.Equal(t, "1", integer)
+	require.Equal(t, "", fractional)
 
-	integer, fractional, err = splitNumber([]rune("."), defaultFractionalSeparator)
+	integer, fractional, err = splitNumber(".", defaultFractionalSeparator)
 	require.NoError(t, err)
-	require.Equal(t, []rune(""), integer)
-	require.Equal(t, []rune(""), fractional)
+	require.Equal(t, "", integer)
+	require.Equal(t, "", fractional)
 
-	integer, fractional, err = splitNumber([]rune("1"), defaultFractionalSeparator)
+	integer, fractional, err = splitNumber("1", defaultFractionalSeparator)
 	require.NoError(t, err)
-	require.Equal(t, []rune("1"), integer)
-	require.Equal(t, []rune(nil), fractional)
+	require.Equal(t, "1", integer)
+	require.Equal(t, "", fractional)
 
-	integer, fractional, err = splitNumber([]rune("12"), defaultFractionalSeparator)
+	integer, fractional, err = splitNumber("12", defaultFractionalSeparator)
 	require.NoError(t, err)
-	require.Equal(t, []rune("12"), integer)
-	require.Equal(t, []rune(nil), fractional)
+	require.Equal(t, "12", integer)
+	require.Equal(t, "", fractional)
 
-	integer, fractional, err = splitNumber([]rune(""), defaultFractionalSeparator)
+	integer, fractional, err = splitNumber("", defaultFractionalSeparator)
 	require.NoError(t, err)
-	require.Equal(t, []rune(""), integer)
-	require.Equal(t, []rune(nil), fractional)
+	require.Equal(t, "", integer)
+	require.Equal(t, "", fractional)
 }
 
 func TestSplitNumberRequireError(t *testing.T) {
@@ -482,16 +493,16 @@ func TestSplitNumberRequireError(t *testing.T) {
 	}
 
 	for _, input := range inputs {
-		integer, fractional, err := splitNumber([]rune(input), defaultFractionalSeparator)
+		integer, fractional, err := splitNumber(input, defaultFractionalSeparator)
 		require.Error(t, err)
-		require.Equal(t, []rune(nil), integer)
-		require.Equal(t, []rune(nil), fractional)
+		require.Equal(t, "", integer)
+		require.Equal(t, "", fractional)
 	}
 }
 
 func TestParseDuration(t *testing.T) {
 	duration, err := parseDuration(
-		namedNumber{[]rune("2.5"), UnitHour},
+		namedNumber{"2.5", UnitHour},
 		defaultNumberBase,
 		defaultFractionalSeparator,
 		false,
@@ -500,7 +511,7 @@ func TestParseDuration(t *testing.T) {
 	require.Equal(t, 2*time.Hour+30*time.Minute, duration)
 
 	duration, err = parseDuration(
-		namedNumber{[]rune("2.5"), UnitHour},
+		namedNumber{"2.5", UnitHour},
 		defaultNumberBase,
 		defaultFractionalSeparator,
 		true,
@@ -511,7 +522,7 @@ func TestParseDuration(t *testing.T) {
 
 func TestParseDurationRequireError(t *testing.T) {
 	duration, err := parseDuration(
-		namedNumber{[]rune("2,5"), UnitHour},
+		namedNumber{"2,5", UnitHour},
 		defaultNumberBase,
 		defaultFractionalSeparator,
 		false,
@@ -520,7 +531,7 @@ func TestParseDurationRequireError(t *testing.T) {
 	require.Equal(t, time.Duration(0), duration)
 
 	duration, err = parseDuration(
-		namedNumber{[]rune("2,5"), UnitHour},
+		namedNumber{"2,5", UnitHour},
 		defaultNumberBase,
 		defaultFractionalSeparator,
 		true,
@@ -529,7 +540,7 @@ func TestParseDurationRequireError(t *testing.T) {
 	require.Equal(t, time.Duration(0), duration)
 
 	duration, err = parseDuration(
-		namedNumber{[]rune("2.5"), UnitUnknown},
+		namedNumber{"2.5", UnitUnknown},
 		defaultNumberBase,
 		defaultFractionalSeparator,
 		false,
@@ -538,7 +549,7 @@ func TestParseDurationRequireError(t *testing.T) {
 	require.Equal(t, time.Duration(0), duration)
 
 	duration, err = parseDuration(
-		namedNumber{[]rune("2.5"), UnitUnknown},
+		namedNumber{"2.5", UnitUnknown},
 		defaultNumberBase,
 		defaultFractionalSeparator,
 		true,
@@ -549,7 +560,7 @@ func TestParseDurationRequireError(t *testing.T) {
 
 func TestParseFractionalDurationUnexpectedUnit(t *testing.T) {
 	duration, err := parseFractionalDuration(
-		[]rune(""),
+		"",
 		defaultNumberBase,
 		UnitUnknown,
 	)

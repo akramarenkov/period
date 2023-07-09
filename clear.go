@@ -1,6 +1,6 @@
 package period
 
-func clearInteger(input []rune) []rune {
+func clearInteger(input string) string {
 	for id, symbol := range input {
 		if id == len(input)-1 {
 			return input[id:]
@@ -16,7 +16,7 @@ func clearInteger(input []rune) []rune {
 	return input[:0]
 }
 
-func clearFractional(slice []rune, fractionalSeparator rune) []rune {
+func clearFractional(slice string, fractionalSeparator byte) string {
 	if len(slice) == 0 {
 		return slice
 	}

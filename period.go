@@ -151,10 +151,8 @@ func (prd *Period) Parse(input string) (bool, error) {
 }
 
 func parse(input string, opts Opts) (Period, bool, error) {
-	runes := []rune(input)
-
 	negative, shift, err := isNegative(
-		runes,
+		input,
 		defaultMinusSign,
 		defaultPlusSign,
 		defaultFractionalSeparator,
@@ -163,12 +161,12 @@ func parse(input string, opts Opts) (Period, bool, error) {
 		return Period{}, false, err
 	}
 
-	if isSpecialZero(runes[shift:]) {
+	if isSpecialZero(input[shift:]) {
 		return Period{opts: opts}, true, nil
 	}
 
 	found, err := findNamedNumbers(
-		runes[shift:],
+		input[shift:],
 		opts.Units,
 		defaultFractionalSeparator,
 		opts.UnitsMustBeUnique,

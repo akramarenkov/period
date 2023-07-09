@@ -2,10 +2,10 @@ package period
 
 const (
 	defaultFormatFractionalSize uint = 9
-	defaultFractionalSeparator       = '.'
-	defaultMinusSign                 = '-'
+	defaultFractionalSeparator  byte = '.'
+	defaultMinusSign            byte = '-'
 	defaultNumberBase           uint = 10
-	defaultPlusSign                  = '+'
+	defaultPlusSign             byte = '+'
 )
 
 var defaultUnits = UnitsTable{

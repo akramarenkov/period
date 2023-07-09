@@ -14,13 +14,13 @@ func formatFractional(
 	number int64,
 	numberBase uint,
 	fractionalSize uint,
-	fractionalSeparator rune,
+	fractionalSeparator byte,
 ) (string, error) {
 	formated := make([]rune, 1+fractionalSize)
 
 	digits := formated[1:]
 
-	formated[0] = fractionalSeparator
+	formated[0] = rune(fractionalSeparator)
 
 	if numberBase == 0 {
 		return "", ErrNumberBaseIsZero
@@ -57,7 +57,7 @@ func formatFractional(
 		digits[id] = symbol
 	}
 
-	cleared := clearFractional(formated, fractionalSeparator)
+	cleared := clearFractional(string(formated), fractionalSeparator)
 
 	return string(cleared), nil
 }

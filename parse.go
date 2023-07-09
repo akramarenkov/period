@@ -17,11 +17,11 @@ var (
 )
 
 type namedNumber struct {
-	Number []rune
+	Number string
 	Unit   Unit
 }
 
-func isSpecialZero(input []rune) bool {
+func isSpecialZero(input string) bool {
 	if len(input) != 1 {
 		return false
 	}
@@ -30,10 +30,10 @@ func isSpecialZero(input []rune) bool {
 }
 
 func isNegative(
-	input []rune,
-	minusSign rune,
-	plusSign rune,
-	fractionalSeparator rune,
+	input string,
+	minusSign byte,
+	plusSign byte,
+	fractionalSeparator byte,
 ) (bool, int, error) {
 	minusFound := false
 	plusFound := false
@@ -43,17 +43,17 @@ func isNegative(
 			continue
 		}
 
-		if symbol == minusSign && !minusFound && !plusFound {
+		if symbol == rune(minusSign) && !minusFound && !plusFound {
 			minusFound = true
 			continue
 		}
 
-		if symbol == plusSign && !minusFound && !plusFound {
+		if symbol == rune(plusSign) && !minusFound && !plusFound {
 			plusFound = true
 			continue
 		}
 
-		if unicode.IsDigit(symbol) || symbol == fractionalSeparator {
+		if unicode.IsDigit(symbol) || symbol == rune(fractionalSeparator) {
 			if minusFound {
 				return true, id, nil
 			}
@@ -76,9 +76,9 @@ func isNegative(
 }
 
 func findNamedNumbers(
-	input []rune,
+	input string,
 	units UnitsTable,
-	fractionalSeparator rune,
+	fractionalSeparator byte,
 	unitsMustBeUnique bool,
 ) ([]namedNumber, error) {
 	retrieved := make([]namedNumber, 0)
@@ -130,17 +130,17 @@ func isUniqueUnit(unique map[Unit]struct{}, unit Unit) error {
 }
 
 func findNamedNumber(
-	input []rune,
+	input string,
 	units UnitsTable,
-	fractionalSeparator rune,
-) ([]rune, int, bool, Unit, error) {
+	fractionalSeparator byte,
+) (string, int, bool, Unit, error) {
 	begin := -1
 	separated := false
 
 	for id, symbol := range input {
 		if unicode.IsSpace(symbol) {
 			if begin != -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+				return "", 0, false, UnitUnknown, ErrIncompleteNumber
 			}
 
 			continue
@@ -154,7 +154,7 @@ func findNamedNumber(
 			continue
 		}
 
-		if symbol == fractionalSeparator && !separated {
+		if symbol == rune(fractionalSeparator) && !separated {
 			if begin == -1 {
 				begin = id
 			}
@@ -167,39 +167,37 @@ func findNamedNumber(
 		unit, found, next := findUnit(input[id:], fractionalSeparator, units)
 		if found {
 			if begin == -1 {
-				return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+				return "", 0, false, UnitUnknown, ErrIncompleteNumber
 			}
 
 			return input[begin:id], id + next, true, unit, nil
 		}
 
-		return nil, 0, false, UnitUnknown, ErrUnexpectedSymbol
+		return "", 0, false, UnitUnknown, ErrUnexpectedSymbol
 	}
 
 	if begin != -1 {
-		return nil, 0, false, UnitUnknown, ErrIncompleteNumber
+		return "", 0, false, UnitUnknown, ErrIncompleteNumber
 	}
 
-	return nil, 0, false, UnitUnknown, nil
+	return "", 0, false, UnitUnknown, nil
 }
 
 func findUnit(
-	input []rune,
-	fractionalSeparator rune,
+	input string,
+	fractionalSeparator byte,
 	units UnitsTable,
 ) (Unit, bool, int) {
 	for unit, modifiers := range units {
 		for _, modifier := range modifiers {
-			runed := []rune(modifier)
-
-			if !isModifierPossibleMatch(input, runed, fractionalSeparator) {
+			if !isModifierPossibleMatch(input, modifier, fractionalSeparator) {
 				continue
 			}
 
-			challenger := input[:len(runed)]
+			challenger := input[:len(modifier)]
 
-			if string(challenger) == modifier {
-				return unit, true, len(runed)
+			if challenger == modifier {
+				return unit, true, len(modifier)
 			}
 		}
 	}
@@ -208,9 +206,9 @@ func findUnit(
 }
 
 func isModifierPossibleMatch(
-	input []rune,
-	modifier []rune,
-	fractionalSeparator rune,
+	input string,
+	modifier string,
+	fractionalSeparator byte,
 ) bool {
 	if len(input) < len(modifier) {
 		return false
@@ -220,15 +218,19 @@ func isModifierPossibleMatch(
 		return true
 	}
 
-	after := input[len(modifier)]
+	after := input[len(modifier):]
 
-	switch {
-	case unicode.IsSpace(after):
-		return true
-	case unicode.IsDigit(after):
-		return true
-	case after == fractionalSeparator:
-		return true
+	for _, symbol := range after {
+		switch {
+		case unicode.IsSpace(symbol):
+			return true
+		case unicode.IsDigit(symbol):
+			return true
+		case symbol == rune(fractionalSeparator):
+			return true
+		default:
+			return false
+		}
 	}
 
 	return false
@@ -237,7 +239,7 @@ func isModifierPossibleMatch(
 func parseDuration(
 	named namedNumber,
 	numberBase uint,
-	fractionalSeparator rune,
+	fractionalSeparator byte,
 	clear bool,
 ) (time.Duration, error) {
 	integer, fractional, err := splitNumber(named.Number, fractionalSeparator)
@@ -268,7 +270,7 @@ func parseDuration(
 	return duration, nil
 }
 
-func splitNumber(input []rune, fractionalSeparator rune) ([]rune, []rune, error) {
+func splitNumber(input string, fractionalSeparator byte) (string, string, error) {
 	edge := -1
 
 	for id, symbol := range input {
@@ -276,9 +278,9 @@ func splitNumber(input []rune, fractionalSeparator rune) ([]rune, []rune, error)
 			continue
 		}
 
-		if symbol == fractionalSeparator {
+		if symbol == rune(fractionalSeparator) {
 			if edge != -1 {
-				return nil, nil, ErrUnexpectedNumberFormat
+				return "", "", ErrUnexpectedNumberFormat
 			}
 
 			edge = id
@@ -286,18 +288,18 @@ func splitNumber(input []rune, fractionalSeparator rune) ([]rune, []rune, error)
 			continue
 		}
 
-		return nil, nil, ErrUnexpectedSymbol
+		return "", "", ErrUnexpectedSymbol
 	}
 
 	if edge == -1 {
-		return input, nil, nil
+		return input, "", nil
 	}
 
 	return input[:edge], input[edge+1:], nil
 }
 
 func parseIntegerDuration(
-	integerPart []rune,
+	integerPart string,
 	numberBase uint,
 	unit Unit,
 ) (time.Duration, error) {
@@ -337,7 +339,7 @@ func parseIntegerDuration(
 }
 
 func parseFractionalDuration(
-	fractionalPart []rune,
+	fractionalPart string,
 	numberBase uint,
 	unit Unit,
 ) (time.Duration, error) {
