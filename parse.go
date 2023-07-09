@@ -262,7 +262,7 @@ func parseDuration(
 
 	duration, err := safe.SumInt(basic, additional)
 	if err != nil {
-		return 0, err
+		return 0, ErrValueOverflow // For backward compatibility
 	}
 
 	return duration, nil
@@ -312,13 +312,13 @@ func parseIntegerDuration(
 		// we will assume that overflow is impossible for int64(numberBase)
 		number, err = safe.ProductInt(number, int64(numberBase))
 		if err != nil {
-			return 0, err
+			return 0, ErrValueOverflow // For backward compatibility
 		}
 
 		// we will assume that overflow is impossible for int64(digit)
 		number, err = safe.SumInt(number, int64(digit))
 		if err != nil {
-			return 0, err
+			return 0, ErrValueOverflow // For backward compatibility
 		}
 	}
 
@@ -330,7 +330,7 @@ func parseIntegerDuration(
 	// overflow is impossible for int64(dimension)
 	number, err = safe.ProductInt(number, int64(dimension))
 	if err != nil {
-		return 0, err
+		return 0, ErrValueOverflow // For backward compatibility
 	}
 
 	return time.Duration(number), nil

@@ -28,17 +28,17 @@ func formatFractional(
 
 	powered, err := safe.PowUnsigned(numberBase, fractionalSize)
 	if err != nil {
-		return "", err
+		return "", ErrValueOverflow // For backward compatibility
 	}
 
 	divisor, err := safe.UnsignedToSigned[uint, int64](powered)
 	if err != nil {
-		return "", err
+		return "", ErrValueOverflow // For backward compatibility
 	}
 
 	base, err := safe.UnsignedToSigned[uint, int64](numberBase)
 	if err != nil {
-		return "", err
+		return "", ErrValueOverflow // For backward compatibility
 	}
 
 	// cut off an integer part of the number

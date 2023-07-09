@@ -216,21 +216,21 @@ func (prd Period) parseYMDNumber(named namedNumber) (Period, error) {
 	case UnitYear:
 		years, err := safe.SumInt(prd.years, int(parsed))
 		if err != nil {
-			return Period{}, err
+			return Period{}, ErrValueOverflow // For backward compatibility
 		}
 
 		prd.years = years
 	case UnitMonth:
 		months, err := safe.SumInt(prd.months, int(parsed))
 		if err != nil {
-			return Period{}, err
+			return Period{}, ErrValueOverflow // For backward compatibility
 		}
 
 		prd.months = months
 	case UnitDay:
 		days, err := safe.SumInt(prd.days, int(parsed))
 		if err != nil {
-			return Period{}, err
+			return Period{}, ErrValueOverflow // For backward compatibility
 		}
 
 		prd.days = days
@@ -252,7 +252,7 @@ func (prd Period) parseHMSNumber(named namedNumber) (Period, error) {
 
 	duration, err = safe.SumInt(prd.duration, duration)
 	if err != nil {
-		return Period{}, err
+		return Period{}, ErrValueOverflow // For backward compatibility
 	}
 
 	prd.duration = duration
@@ -394,7 +394,7 @@ func normalizeValue[Type constraints.Signed](
 	if value < 0 {
 		inverted, err := safe.Invert(value)
 		if err != nil {
-			return 0, err
+			return 0, ErrValueOverflow // For backward compatibility
 		}
 
 		return inverted, nil
@@ -450,13 +450,23 @@ func addValue[Type constraints.Signed](
 	if negative {
 		inverted, err := safe.Invert(added)
 		if err != nil {
-			return 0, err
+			return 0, ErrValueOverflow // For backward compatibility
 		}
 
-		return safe.SumInt(original, inverted)
+		sum, err := safe.SumInt(original, inverted)
+		if err != nil {
+			return 0, ErrValueOverflow // For backward compatibility
+		}
+
+		return sum, nil
 	}
 
-	return safe.SumInt(original, added)
+	sum, err := safe.SumInt(original, added)
+	if err != nil {
+		return 0, ErrValueOverflow // For backward compatibility
+	}
+
+	return sum, nil
 }
 
 // Converts Period value into string
