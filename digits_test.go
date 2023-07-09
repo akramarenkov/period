@@ -55,45 +55,45 @@ func TestSymbolToDigit(t *testing.T) {
 func TestDigitToSymbol(t *testing.T) {
 	symbol, err := digitToSymbol(0)
 	require.NoError(t, err)
-	require.Equal(t, '0', symbol)
+	require.Equal(t, byte('0'), symbol)
 
 	symbol, err = digitToSymbol(1)
 	require.NoError(t, err)
-	require.Equal(t, '1', symbol)
+	require.Equal(t, byte('1'), symbol)
 
 	symbol, err = digitToSymbol(2)
 	require.NoError(t, err)
-	require.Equal(t, '2', symbol)
+	require.Equal(t, byte('2'), symbol)
 
 	symbol, err = digitToSymbol(3)
 	require.NoError(t, err)
-	require.Equal(t, '3', symbol)
+	require.Equal(t, byte('3'), symbol)
 
 	symbol, err = digitToSymbol(4)
 	require.NoError(t, err)
-	require.Equal(t, '4', symbol)
+	require.Equal(t, byte('4'), symbol)
 
 	symbol, err = digitToSymbol(5)
 	require.NoError(t, err)
-	require.Equal(t, '5', symbol)
+	require.Equal(t, byte('5'), symbol)
 
 	symbol, err = digitToSymbol(6)
 	require.NoError(t, err)
-	require.Equal(t, '6', symbol)
+	require.Equal(t, byte('6'), symbol)
 
 	symbol, err = digitToSymbol(7)
 	require.NoError(t, err)
-	require.Equal(t, '7', symbol)
+	require.Equal(t, byte('7'), symbol)
 
 	symbol, err = digitToSymbol(8)
 	require.NoError(t, err)
-	require.Equal(t, '8', symbol)
+	require.Equal(t, byte('8'), symbol)
 
 	symbol, err = digitToSymbol(9)
 	require.NoError(t, err)
-	require.Equal(t, '9', symbol)
+	require.Equal(t, byte('9'), symbol)
 
 	symbol, err = digitToSymbol(10)
 	require.Error(t, err)
-	require.Equal(t, rune(0), symbol)
+	require.Equal(t, byte(0), symbol)
 }

@@ -50,7 +50,7 @@ func symbolToDigit(symbol rune) (uint, error) {
 	return 0, ErrUnexpectedDigit
 }
 
-func digitToSymbol[Type constraints.Integer](digit Type) (rune, error) {
+func digitToSymbol[Type constraints.Integer](digit Type) (byte, error) {
 	switch digit {
 	case digitZero:
 		return '0', nil

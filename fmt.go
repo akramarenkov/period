@@ -2,6 +2,7 @@ package period
 
 import (
 	"errors"
+	"unsafe"
 
 	"github.com/akramarenkov/safe"
 )
@@ -16,11 +17,11 @@ func formatFractional(
 	fractionalSize uint,
 	fractionalSeparator byte,
 ) (string, error) {
-	formated := make([]rune, 1+fractionalSize)
+	buffer := make([]byte, 1+fractionalSize)
 
-	digits := formated[1:]
+	digits := buffer[1:]
 
-	formated[0] = rune(fractionalSeparator)
+	buffer[0] = fractionalSeparator
 
 	if numberBase == 0 {
 		return "", ErrNumberBaseIsZero
@@ -57,7 +58,9 @@ func formatFractional(
 		digits[id] = symbol
 	}
 
-	cleared := clearFractional(string(formated), fractionalSeparator)
+	formated := unsafe.String(unsafe.SliceData(buffer), len(buffer))
 
-	return string(cleared), nil
+	cleared := clearFractional(formated, fractionalSeparator)
+
+	return cleared, nil
 }
