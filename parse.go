@@ -188,15 +188,11 @@ func findUnit(
 	fractionalSeparator byte,
 	units UnitsTable,
 ) (Unit, bool, int) {
+	possible := pickOutPossibleUnit(input, fractionalSeparator)
+
 	for unit, modifiers := range units {
 		for _, modifier := range modifiers {
-			if !isModifierPossibleMatch(input, modifier, fractionalSeparator) {
-				continue
-			}
-
-			challenger := input[:len(modifier)]
-
-			if challenger == modifier {
+			if possible == modifier {
 				return unit, true, len(modifier)
 			}
 		}
@@ -205,35 +201,19 @@ func findUnit(
 	return UnitUnknown, false, 0
 }
 
-func isModifierPossibleMatch(
-	input string,
-	modifier string,
-	fractionalSeparator byte,
-) bool {
-	if len(input) < len(modifier) {
-		return false
-	}
-
-	if len(input) == len(modifier) {
-		return true
-	}
-
-	after := input[len(modifier):]
-
-	for _, symbol := range after {
+func pickOutPossibleUnit(input string, fractionalSeparator byte) string {
+	for id, symbol := range input {
 		switch {
 		case unicode.IsSpace(symbol):
-			return true
+			return input[:id]
 		case unicode.IsDigit(symbol):
-			return true
+			return input[:id]
 		case symbol == rune(fractionalSeparator):
-			return true
-		default:
-			return false
+			return input[:id]
 		}
 	}
 
-	return false
+	return input
 }
 
 func parseDuration(
