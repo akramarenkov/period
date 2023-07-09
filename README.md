@@ -10,6 +10,8 @@ Library that extends time.Duration from standard library with years, months and 
 
 Without approximations
 
+Without regular expression
+
 Compatible with time.Duration
 
 ## Usage
