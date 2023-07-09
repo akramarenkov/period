@@ -489,6 +489,17 @@ func TestAddDateRequireError(t *testing.T) {
 	require.Error(t, period.AddDate(0, math.MinInt+1, 0))
 	require.Error(t, period.AddDate(0, 0, math.MinInt))
 	require.Error(t, period.AddDate(0, 0, math.MinInt+1))
+
+	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Error(t, period.AddDate(math.MaxInt, 0, 0))
+	require.Error(t, period.AddDate(math.MaxInt-1, 0, 0))
+	require.Error(t, period.AddDate(0, math.MaxInt, 0))
+	require.Error(t, period.AddDate(0, math.MaxInt-1, 0))
+	require.Error(t, period.AddDate(0, 0, math.MaxInt))
+	require.Error(t, period.AddDate(0, 0, math.MaxInt-1))
 }
 
 func TestAddDuration(t *testing.T) {
@@ -526,6 +537,13 @@ func TestAddDurationRequireError(t *testing.T) {
 
 	require.Error(t, period.AddDuration(math.MinInt64))
 	require.Error(t, period.AddDuration(math.MinInt64+1))
+
+	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
+	require.NoError(t, err)
+	require.Equal(t, true, found)
+
+	require.Error(t, period.AddDuration(math.MaxInt64))
+	require.Error(t, period.AddDuration(math.MaxInt64-1))
 }
 
 func TestSetNegative(t *testing.T) {
