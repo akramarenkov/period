@@ -11,21 +11,21 @@ import (
 func TestParse(t *testing.T) {
 	period, found, err := Parse(" 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	require.Equal(t, 2, period.Years())
 	require.Equal(t, 3, period.Months())
 	require.Equal(t, 10, period.Days())
-	require.Equal(t, false, period.IsNegative())
+	require.False(t, period.IsNegative())
 	require.Equal(t, time.Duration(86398010030010), period.Duration())
 
 	period, found, err = Parse(" - 3mo10d2y23h59m58s10ms30us10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, -2, period.Years())
 	require.Equal(t, -3, period.Months())
 	require.Equal(t, -10, period.Days())
-	require.Equal(t, true, period.IsNegative())
+	require.True(t, period.IsNegative())
 	require.Equal(t, time.Duration(-86398010030010), period.Duration())
 }
 
@@ -33,22 +33,22 @@ func TestParseEmpty(t *testing.T) {
 	period, found, err := Parse("")
 	require.NoError(t, err)
 	require.Equal(t, Period{opts: Opts{Units: defaultUnits}}, period)
-	require.Equal(t, false, found)
+	require.False(t, found)
 
 	period, found, err = Parse("   ")
 	require.NoError(t, err)
 	require.Equal(t, Period{opts: Opts{Units: defaultUnits}}, period)
-	require.Equal(t, false, found)
+	require.False(t, found)
 }
 
 func TestParseNotUniqueUnit(t *testing.T) {
 	period, found, err := Parse("1y1y1mo1mo1d1d1h1h1m1m1s1s1ms1ms1us1us1ns1ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, period.Years())
 	require.Equal(t, 2, period.Months())
 	require.Equal(t, 2, period.Days())
-	require.Equal(t, false, period.IsNegative())
+	require.False(t, period.IsNegative())
 	require.Equal(
 		t,
 		2*time.Hour+
@@ -66,19 +66,19 @@ func TestParseCustom(t *testing.T) {
 
 	regular, found, err := Parse(input)
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	custom, found, err := ParseCustom(input, defaultUnits)
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	unsafe, found, err := ParseCustomUnsafe(input, defaultUnits)
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	withOpts, found, err := ParseWithOpts(input, Opts{Units: defaultUnits})
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	require.Equal(t, regular, custom)
 	require.Equal(t, regular, unsafe)
@@ -135,11 +135,11 @@ func TestParseExtraZerosResistance(t *testing.T) {
 			func(t *testing.T) {
 				regular, found, err := Parse(item.input)
 				require.NoError(t, err)
-				require.Equal(t, true, found)
+				require.True(t, found)
 
 				resistance, found, err := ParseWithOpts(item.input, opts)
 				require.NoError(t, err)
-				require.Equal(t, true, found)
+				require.True(t, found)
 
 				duration, err := time.ParseDuration(item.input)
 				require.NoError(t, err)
@@ -209,12 +209,12 @@ func TestParseRequireError(t *testing.T) {
 		period, found, err := Parse(input)
 		require.Error(t, err)
 		require.Equal(t, Period{}, period)
-		require.Equal(t, false, found)
+		require.False(t, found)
 
 		period, found, err = ParseWithOpts(input, opts)
 		require.Error(t, err)
 		require.Equal(t, Period{}, period)
-		require.Equal(t, false, found)
+		require.False(t, found)
 	}
 
 	period, found, err := ParseWithOpts(
@@ -223,7 +223,7 @@ func TestParseRequireError(t *testing.T) {
 	)
 	require.Error(t, err)
 	require.Equal(t, Period{}, period)
-	require.Equal(t, false, found)
+	require.False(t, found)
 }
 
 func TestParseOverflow(t *testing.T) {
@@ -302,7 +302,7 @@ func TestParseOverflow(t *testing.T) {
 func TestShiftTime(t *testing.T) {
 	period, found, err := Parse("1y")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	date := time.Date(2023, time.April, 1, 0, 0, 0, 0, time.UTC)
 
@@ -320,13 +320,13 @@ func TestShiftTime(t *testing.T) {
 
 	period, found, err = Parse("365d24h")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 
 	period, found, err = Parse("8760h1d")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 }
@@ -334,7 +334,7 @@ func TestShiftTime(t *testing.T) {
 func TestShiftTimeNegative(t *testing.T) {
 	period, found, err := Parse("-1y")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	date := time.Date(2024, time.April, 1, 0, 0, 0, 0, time.UTC)
 
@@ -352,13 +352,13 @@ func TestShiftTimeNegative(t *testing.T) {
 
 	period, found, err = Parse("-365d24h")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 
 	period, found, err = Parse("-8760h1d")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, expectedDate, period.ShiftTime(date))
 	require.Equal(t, expectedDuration, period.RelativeDuration(date))
 }
@@ -366,14 +366,14 @@ func TestShiftTimeNegative(t *testing.T) {
 func TestString(t *testing.T) {
 	period, found, err := Parse("-2y3mo10d")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, "-2y3mo10d0h0m0s", period.String())
 
 	input := "-2y3mo10d23h59m58.01003001s"
 
 	period, found, err = Parse(input)
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, input, period.String())
 }
 
@@ -427,7 +427,7 @@ func TestStdLibraryCompatibility(t *testing.T) {
 			func(t *testing.T) {
 				period, found, err := Parse(input)
 				require.NoError(t, err)
-				require.Equal(t, true, found)
+				require.True(t, found)
 
 				duration, err := time.ParseDuration(input)
 				require.NoError(t, err)
@@ -441,7 +441,7 @@ func TestStdLibraryCompatibility(t *testing.T) {
 func TestAddDate(t *testing.T) {
 	period, found, err := Parse("2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	years := period.Years()
 	months := period.Months()
@@ -461,7 +461,7 @@ func TestAddDate(t *testing.T) {
 func TestAddDateNegative(t *testing.T) {
 	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	years := period.Years()
 	months := period.Months()
@@ -481,7 +481,7 @@ func TestAddDateNegative(t *testing.T) {
 func TestAddDateRequireError(t *testing.T) {
 	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	require.Error(t, period.AddDate(math.MinInt, 0, 0))
 	require.Error(t, period.AddDate(math.MinInt+1, 0, 0))
@@ -492,7 +492,7 @@ func TestAddDateRequireError(t *testing.T) {
 
 	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	require.Error(t, period.AddDate(math.MaxInt, 0, 0))
 	require.Error(t, period.AddDate(math.MaxInt-1, 0, 0))
@@ -505,7 +505,7 @@ func TestAddDateRequireError(t *testing.T) {
 func TestAddDuration(t *testing.T) {
 	period, found, err := Parse("2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	duration := period.Duration()
 
@@ -519,7 +519,7 @@ func TestAddDuration(t *testing.T) {
 func TestAddDurationNegative(t *testing.T) {
 	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	duration := period.Duration()
 
@@ -533,14 +533,14 @@ func TestAddDurationNegative(t *testing.T) {
 func TestAddDurationRequireError(t *testing.T) {
 	period, found, err := Parse("-2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	require.Error(t, period.AddDuration(math.MinInt64))
 	require.Error(t, period.AddDuration(math.MinInt64+1))
 
 	period, found, err = Parse("2y3mo10d23h59m58s10ms30µs10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	require.Error(t, period.AddDuration(math.MaxInt64))
 	require.Error(t, period.AddDuration(math.MaxInt64-1))
@@ -549,19 +549,19 @@ func TestAddDurationRequireError(t *testing.T) {
 func TestSetNegative(t *testing.T) {
 	period, found, err := Parse("2y10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
-	require.Equal(t, false, period.IsNegative())
+	require.True(t, found)
+	require.False(t, period.IsNegative())
 	require.Equal(t, "2y0mo0d0h0m0.00000001s", period.String())
 
 	period.SetNegative(true)
-	require.Equal(t, true, period.IsNegative())
+	require.True(t, period.IsNegative())
 	require.Equal(t, "-2y0mo0d0h0m0.00000001s", period.String())
 }
 
 func TestSetYears(t *testing.T) {
 	period, found, err := Parse("2y10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, period.Years())
 	require.Equal(t, "2y0mo0d0h0m0.00000001s", period.String())
 
@@ -575,7 +575,7 @@ func TestSetYears(t *testing.T) {
 func TestSetYearsNegative(t *testing.T) {
 	period, found, err := Parse("-2y10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, -2, period.Years())
 	require.Equal(t, "-2y0mo0d0h0m0.00000001s", period.String())
 
@@ -593,7 +593,7 @@ func TestSetYearsNegative(t *testing.T) {
 func TestSetMonths(t *testing.T) {
 	period, found, err := Parse("2mo10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, period.Months())
 	require.Equal(t, "2mo0d0h0m0.00000001s", period.String())
 
@@ -607,7 +607,7 @@ func TestSetMonths(t *testing.T) {
 func TestSetMonthsNegative(t *testing.T) {
 	period, found, err := Parse("-2mo10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, -2, period.Months())
 	require.Equal(t, "-2mo0d0h0m0.00000001s", period.String())
 
@@ -625,7 +625,7 @@ func TestSetMonthsNegative(t *testing.T) {
 func TestSetDays(t *testing.T) {
 	period, found, err := Parse("2d10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, period.Days())
 	require.Equal(t, "2d0h0m0.00000001s", period.String())
 
@@ -639,7 +639,7 @@ func TestSetDays(t *testing.T) {
 func TestSetDaysNegative(t *testing.T) {
 	period, found, err := Parse("-2d10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, -2, period.Days())
 	require.Equal(t, "-2d0h0m0.00000001s", period.String())
 
@@ -657,7 +657,7 @@ func TestSetDaysNegative(t *testing.T) {
 func TestSetDuration(t *testing.T) {
 	period, found, err := Parse("2d10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, time.Duration(10), period.Duration())
 	require.Equal(t, "2d0h0m0.00000001s", period.String())
 
@@ -671,7 +671,7 @@ func TestSetDuration(t *testing.T) {
 func TestSetDurationNegative(t *testing.T) {
 	period, found, err := Parse("-2d10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, time.Duration(-10), period.Duration())
 	require.Equal(t, "-2d0h0m0.00000001s", period.String())
 
@@ -707,11 +707,11 @@ func TestMethodParse(t *testing.T) {
 
 	found, err := period.Parse(" 3mo 10d 2y 23h 59m 58s 10ms 30us 10ns")
 	require.NoError(t, err)
-	require.Equal(t, true, found)
+	require.True(t, found)
 
 	found, err = period.Parse(" 3mo 10d 2y 23h 59m ৩s 10ms 30us 10ns")
 	require.Error(t, err)
-	require.Equal(t, false, found)
+	require.False(t, found)
 }
 
 func TestNewPeriodCustomInvalidUnitsTable(t *testing.T) {

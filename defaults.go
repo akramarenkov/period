@@ -8,7 +8,7 @@ const (
 	defaultPlusSign             byte = '+'
 )
 
-var defaultUnits = UnitsTable{
+var defaultUnits = UnitsTable{ //nolint:gochecknoglobals
 	UnitYear: {
 		"y",
 	},

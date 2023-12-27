@@ -8,10 +8,10 @@ import (
 )
 
 func TestIsSpecialZero(t *testing.T) {
-	require.Equal(t, true, isSpecialZero("0"))
-	require.Equal(t, false, isSpecialZero("1"))
-	require.Equal(t, false, isSpecialZero(""))
-	require.Equal(t, false, isSpecialZero("00"))
+	require.True(t, isSpecialZero("0"))
+	require.False(t, isSpecialZero("1"))
+	require.False(t, isSpecialZero(""))
+	require.False(t, isSpecialZero("00"))
 }
 
 func TestIsNegative(t *testing.T) {
@@ -22,7 +22,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, true, negative)
+	require.True(t, negative)
 	require.Equal(t, 1, next)
 
 	negative, next, err = isNegative(
@@ -32,7 +32,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, false, negative)
+	require.False(t, negative)
 	require.Equal(t, 1, next)
 
 	negative, next, err = isNegative(
@@ -42,7 +42,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, true, negative)
+	require.True(t, negative)
 	require.Equal(t, 4, next)
 
 	negative, next, err = isNegative(
@@ -52,7 +52,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, true, negative)
+	require.True(t, negative)
 	require.Equal(t, 2, next)
 
 	negative, next, err = isNegative(
@@ -62,7 +62,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, true, negative)
+	require.True(t, negative)
 	require.Equal(t, 7, next)
 
 	negative, next, err = isNegative(
@@ -72,7 +72,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, false, negative)
+	require.False(t, negative)
 	require.Equal(t, 0, next)
 
 	negative, next, err = isNegative(
@@ -82,7 +82,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, false, negative)
+	require.False(t, negative)
 	require.Equal(t, 0, next)
 
 	negative, next, err = isNegative(
@@ -92,7 +92,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, false, negative)
+	require.False(t, negative)
 	require.Equal(t, 0, next)
 
 	negative, next, err = isNegative(
@@ -102,7 +102,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, false, negative)
+	require.False(t, negative)
 	require.Equal(t, 0, next)
 
 	negative, next, err = isNegative(
@@ -112,7 +112,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, false, negative)
+	require.False(t, negative)
 	require.Equal(t, 0, next)
 
 	negative, next, err = isNegative(
@@ -122,7 +122,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, true, negative)
+	require.True(t, negative)
 	require.Equal(t, 1, next)
 
 	negative, next, err = isNegative(
@@ -132,7 +132,7 @@ func TestIsNegative(t *testing.T) {
 		defaultFractionalSeparator,
 	)
 	require.NoError(t, err)
-	require.Equal(t, false, negative)
+	require.False(t, negative)
 	require.Equal(t, 1, next)
 }
 
@@ -161,7 +161,7 @@ func TestIsNegativeRequireError(t *testing.T) {
 			defaultFractionalSeparator,
 		)
 		require.Error(t, err)
-		require.Equal(t, false, negative)
+		require.False(t, negative)
 		require.Equal(t, 0, next)
 	}
 }
@@ -173,7 +173,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitYear, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
@@ -182,7 +182,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitYear, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
@@ -191,7 +191,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitMonth, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit(
@@ -200,7 +200,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitDay, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
@@ -209,7 +209,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitHour, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
@@ -218,7 +218,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitMinute, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
@@ -227,7 +227,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitSecond, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 1, next)
 
 	unit, found, next = findUnit(
@@ -236,7 +236,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitMillisecond, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit(
@@ -245,7 +245,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitMicrosecond, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, next)
 
 	unit, found, next = findUnit(
@@ -254,7 +254,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitMicrosecond, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 3, next)
 
 	unit, found, next = findUnit(
@@ -263,7 +263,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitMicrosecond, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 3, next)
 
 	unit, found, next = findUnit(
@@ -272,7 +272,7 @@ func TestFindUnit(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitNanosecond, unit)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, 2, next)
 }
 
@@ -283,7 +283,7 @@ func TestFindUnitNotFound(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitUnknown, unit)
-	require.Equal(t, false, found)
+	require.False(t, found)
 	require.Equal(t, 0, next)
 
 	unit, found, next = findUnit(
@@ -292,7 +292,7 @@ func TestFindUnitNotFound(t *testing.T) {
 		defaultUnits,
 	)
 	require.Equal(t, UnitUnknown, unit)
-	require.Equal(t, false, found)
+	require.False(t, found)
 	require.Equal(t, 0, next)
 }
 
@@ -305,7 +305,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "10", number)
 	require.Equal(t, 3, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -316,7 +316,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "10", number)
 	require.Equal(t, 6, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -327,7 +327,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "10", number)
 	require.Equal(t, 3, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -338,7 +338,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "10", number)
 	require.Equal(t, 6, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -349,7 +349,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "1.10", number)
 	require.Equal(t, 5, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -360,7 +360,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "1.10", number)
 	require.Equal(t, 8, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -371,7 +371,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, ".10", number)
 	require.Equal(t, 4, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -382,7 +382,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, ".10", number)
 	require.Equal(t, 7, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -393,7 +393,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, ".", number)
 	require.Equal(t, 5, next)
-	require.Equal(t, true, found)
+	require.True(t, found)
 	require.Equal(t, UnitDay, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -404,7 +404,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "", number)
 	require.Equal(t, 0, next)
-	require.Equal(t, false, found)
+	require.False(t, found)
 	require.Equal(t, UnitUnknown, unit)
 
 	number, next, found, unit, err = findNamedNumber(
@@ -415,7 +415,7 @@ func TestFindNamedNumber(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "", number)
 	require.Equal(t, 0, next)
-	require.Equal(t, false, found)
+	require.False(t, found)
 	require.Equal(t, UnitUnknown, unit)
 }
 
@@ -441,7 +441,7 @@ func TestFindNamedNumberRequireError(t *testing.T) {
 		require.Error(t, err)
 		require.Equal(t, "", number)
 		require.Equal(t, 0, next)
-		require.Equal(t, false, found)
+		require.False(t, found)
 		require.Equal(t, UnitUnknown, unit)
 	}
 }
