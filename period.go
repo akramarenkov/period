@@ -37,7 +37,7 @@ type Period struct {
 	duration time.Duration
 }
 
-// Creates empty Period instance with default units table
+// Creates empty Period instance with default units table.
 func New() Period {
 	opts := Opts{
 		Units: defaultUnits,
@@ -48,7 +48,7 @@ func New() Period {
 
 // Creates empty Period instance with custom units table.
 //
-// Units table validates before create instance
+// Units table validates before create instance.
 func NewCustom(units UnitsTable) (Period, error) {
 	if err := IsValidUnitsTable(units); err != nil {
 		return Period{}, err
@@ -64,7 +64,7 @@ func NewCustom(units UnitsTable) (Period, error) {
 // Creates empty Period instance with custom units table.
 //
 // Units table not validates before create instance. Use IsValidUnitsTable()
-// yourself before creates instance
+// yourself before creates instance.
 func NewCustomUnsafe(units UnitsTable) Period {
 	opts := Opts{
 		Units: units,
@@ -103,7 +103,7 @@ func Parse(input string) (Period, bool, error) {
 
 // Creates Period instance from input string with custom units table.
 //
-// Units table validates before create instance
+// Units table validates before create instance.
 func ParseCustom(input string, units UnitsTable) (Period, bool, error) {
 	if err := IsValidUnitsTable(units); err != nil {
 		return Period{}, false, err
@@ -119,7 +119,7 @@ func ParseCustom(input string, units UnitsTable) (Period, bool, error) {
 // Creates Period instance from input string with custom units table.
 //
 // Units table not validates before create instance. Use IsValidUnitsTable()
-// yourself before creates instance
+// yourself before creates instance.
 func ParseCustomUnsafe(input string, units UnitsTable) (Period, bool, error) {
 	opts := Opts{
 		Units: units,
@@ -257,7 +257,7 @@ func (prd Period) parseHMSNumber(named namedNumber) (Period, error) {
 	return prd, nil
 }
 
-// Shifts base time to Period value
+// Shifts base time to Period value.
 func (prd Period) ShiftTime(base time.Time) time.Time {
 	if prd.negative {
 		return base.AddDate(-prd.years, -prd.months, -prd.days).Add(-prd.duration)
@@ -269,22 +269,22 @@ func (prd Period) ShiftTime(base time.Time) time.Time {
 // Calculates Period value in time.Duration.
 //
 // Base time is necessary because shift to days, months and years
-// not deterministic and depends on time around which it occurs
+// not deterministic and depends on time around which it occurs.
 func (prd Period) RelativeDuration(base time.Time) time.Duration {
 	return prd.ShiftTime(base).Sub(base)
 }
 
-// Returns Period sign (negative or positive)
+// Returns Period sign (negative or positive).
 func (prd Period) IsNegative() bool {
 	return prd.negative
 }
 
-// Sets Period sign (negative or positive)
+// Sets Period sign (negative or positive).
 func (prd *Period) SetNegative(negative bool) {
 	prd.negative = negative
 }
 
-// Returns years separately
+// Returns years separately.
 func (prd Period) Years() int {
 	if prd.negative {
 		return -prd.years
@@ -293,7 +293,7 @@ func (prd Period) Years() int {
 	return prd.years
 }
 
-// Sets years separately
+// Sets years separately.
 func (prd *Period) SetYears(years int) error {
 	years, err := normalizeValue(prd.negative, years)
 	if err != nil {
@@ -305,7 +305,7 @@ func (prd *Period) SetYears(years int) error {
 	return nil
 }
 
-// Returns months separately
+// Returns months separately.
 func (prd Period) Months() int {
 	if prd.negative {
 		return -prd.months
@@ -314,7 +314,7 @@ func (prd Period) Months() int {
 	return prd.months
 }
 
-// Sets months separately
+// Sets months separately.
 func (prd *Period) SetMonths(months int) error {
 	months, err := normalizeValue(prd.negative, months)
 	if err != nil {
@@ -326,7 +326,7 @@ func (prd *Period) SetMonths(months int) error {
 	return nil
 }
 
-// Returns days separately
+// Returns days separately.
 func (prd Period) Days() int {
 	if prd.negative {
 		return -prd.days
@@ -335,7 +335,7 @@ func (prd Period) Days() int {
 	return prd.days
 }
 
-// Sets days separately
+// Sets days separately.
 func (prd *Period) SetDays(days int) error {
 	days, err := normalizeValue(prd.negative, days)
 	if err != nil {
@@ -352,7 +352,7 @@ func (prd *Period) SetDays(days int) error {
 // It is not Period duration, it is part of Period with value of
 // hours, minutes, seconds and etc.
 //
-// For get Period duration use RelativeDuration()
+// For get Period duration use RelativeDuration().
 func (prd Period) Duration() time.Duration {
 	if prd.negative {
 		return -prd.duration
@@ -400,7 +400,7 @@ func normalizeValue[Type constraints.Signed](
 	return value, nil
 }
 
-// Increases or decreases value of years, months and days
+// Increases or decreases value of years, months and days.
 func (prd *Period) AddDate(years int, months int, days int) error {
 	sumYears, err := addValue(prd.negative, prd.years, years)
 	if err != nil {
@@ -466,7 +466,7 @@ func addValue[Type constraints.Signed](
 	return sum, nil
 }
 
-// Converts Period value into string
+// Converts Period value into string.
 func (prd Period) String() string {
 	builder := &strings.Builder{}
 

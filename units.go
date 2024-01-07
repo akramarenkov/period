@@ -40,18 +40,19 @@ const (
 // First modifier for unit is a default modifier that used when converting to string.
 //
 // Default units:
-// y      - years;
-// mo     - months;
-// d      - days;
-// h      - hours;
-// m      - minutes;
-// s      - seconds;
-// ms     - milliseconds;
-// us, µs - microseconds;
-// ns     - nanoseconds
+//
+//   - y      - years;
+//   - mo     - months;
+//   - d      - days;
+//   - h      - hours;
+//   - m      - minutes;
+//   - s      - seconds;
+//   - ms     - milliseconds;
+//   - us, µs - microseconds;
+//   - ns     - nanoseconds.
 type UnitsTable map[Unit][]string
 
-// Validates units table
+// Validates units table.
 func IsValidUnitsTable(units UnitsTable) error {
 	unitsQuantity := 0
 	uniqueModifiers := make(map[string]struct{}, len(units))
