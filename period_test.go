@@ -754,7 +754,7 @@ func benchmarkParseString(b *testing.B, custom bool) {
 	input := " - 3mo 10d 2y 23.5h59m58s10ms30µs10ns"
 	output := "-2y3mo10d24h29m58.01003001s"
 
-	for attempt := 0; attempt < 100000; attempt++ {
+	for range 100000 {
 		if custom {
 			period, _, err := ParseCustom(input, defaultUnits)
 			require.NoError(b, err)
@@ -780,7 +780,7 @@ func BenchmarkParseCustomString(b *testing.B) {
 func FuzzFindPanic(f *testing.F) {
 	f.Add("-2y3mo10d23h59m58.01003001s")
 	f.Fuzz(
-		func(t *testing.T, input string) {
+		func(_ *testing.T, input string) {
 			_, _, _ = Parse(input)
 		},
 	)
