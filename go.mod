@@ -3,8 +3,8 @@ module github.com/akramarenkov/period
 go 1.22
 
 require (
-	github.com/akramarenkov/safe v0.2.2
-	github.com/stretchr/testify v1.8.4
+	github.com/akramarenkov/safe v0.2.4
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df
 )
 
